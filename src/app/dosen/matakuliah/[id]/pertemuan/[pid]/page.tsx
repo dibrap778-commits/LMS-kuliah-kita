@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AbsensiToggle from "./AbsensiToggle";
 import TambahMateri from "./TambahMateri";
 import TambahTugas from "./TambahTugas";
+import HapusTugas from "./HapusTugas";
 
 export default async function PertemuanDetail({
   params,
@@ -159,9 +160,12 @@ export default async function PertemuanDetail({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-medium text-sm text-gray-900">{t.judul}</h3>
-                      <span className="text-xs text-gray-400">
-                        {t.submission?.[0]?.count || 0} dikumpulkan
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-400">
+                          {t.submission?.[0]?.count || 0} dikumpulkan
+                        </span>
+                        <HapusTugas tugasId={t.id} pertemuanId={pid} mkId={id} />
+                      </div>
                     </div>
                     {t.deskripsi && (
                       <p className="text-xs text-gray-500 mb-2">{t.deskripsi}</p>
