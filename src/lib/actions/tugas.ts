@@ -12,6 +12,8 @@ export async function createTugas(formData: FormData) {
   const judul = formData.get("judul") as string;
   const deskripsi = formData.get("deskripsi") as string;
   const deadline = formData.get("deadline") as string;
+  const soal_url = formData.get("soal_url") as string | null;
+  const soal_nama_file = formData.get("soal_nama_file") as string | null;
 
   const supabase = createServerClient();
 
@@ -20,6 +22,7 @@ export async function createTugas(formData: FormData) {
     judul,
     deskripsi,
     deadline,
+    ...(soal_url ? { soal_url, soal_nama_file } : {}),
   });
 
   if (error) return { error: "Gagal membuat tugas" };

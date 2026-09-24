@@ -10,9 +10,35 @@ export default function TambahTugas({ pertemuanId }: { pertemuanId: string }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError("");
     setLoading(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData();
+    formData.set("pertemuan_id", pertemuanId);
+    formData.set("judul", (form.querySelector<HTMLInputElement>('[name="judul"]'))?.value || "");
+    formData.set("deskripsi", (form.querySelector<HTMLTextAreaElement>('[name="deskripsi"]'))?.value || "");
+    formData.set("deadline", (form.querySelector<HTMLInputElement>('[name="deadline"]'))?.value || "");
+
+    const fileInput = form.querySelector<HTMLInputElement>('[name="soal_file"]');
+    const file = fileInput?.files?.[0];
+    if (file) {
+      const uploadData = new FormData();
+      uploadData.set("file", file);
+      uploadData.set("bucket", "materi");
+      const res = await fetch("/api/upload", { method: "POST", body: uploadData });
+      const result = await res.json();
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      formData.set("soal_url", result.url);
+      formData.set("soal_nama_file", result.nama_file);
+    }
+
     const result = await createTugas(formData);
     if (result.error) {
       setError(result.error);
@@ -41,8 +67,7 @@ export default function TambahTugas({ pertemuanId }: { pertemuanId: string }) {
           {error}
         </div>
       )}
-      <form action={handleSubmit} className="space-y-3">
-        <input type="hidden" name="pertemuan_id" value={pertemuanId} />
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Judul Tugas</label>
           <input
@@ -59,6 +84,17 @@ export default function TambahTugas({ pertemuanId }: { pertemuanId: string }) {
             rows={2}
             placeholder="Instruksi tugas..."
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            File Soal <span className="text-gray-400 font-normal">(opsional, PDF/Word)</span>
+          </label>
+          <input
+            name="soal_file"
+            type="file"
+            accept=".pdf,.doc,.docx"
+            className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
           />
         </div>
         <div>

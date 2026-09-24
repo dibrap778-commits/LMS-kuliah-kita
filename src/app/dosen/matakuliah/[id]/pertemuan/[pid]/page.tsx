@@ -170,6 +170,16 @@ export default async function PertemuanDetail({
                     {t.deskripsi && (
                       <p className="text-xs text-gray-500 mb-2">{t.deskripsi}</p>
                     )}
+                    {t.soal_url && (
+                      <a
+                        href={t.soal_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-emerald-700 hover:underline mb-2"
+                      >
+                        📄 {t.soal_nama_file || "File Soal"}
+                      </a>
+                    )}
                     <p className="text-xs text-gray-400">
                       Deadline:{" "}
                       {new Date(t.deadline).toLocaleDateString("id-ID", {
