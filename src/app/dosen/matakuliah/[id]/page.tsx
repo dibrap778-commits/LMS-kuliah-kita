@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import TambahPertemuan from "./TambahPertemuan";
+import RekapNilai from "./RekapNilai";
 
 export default async function MataKuliahDetail({
   params,
@@ -32,6 +33,37 @@ export default async function MataKuliahDetail({
     .from("enrollment")
     .select("mahasiswa:mahasiswa_id(id, nim, nama)")
     .eq("mk_id", id);
+
+  // Data for rekap nilai
+  const pertemuanIds = (pertemuan || []).map((p) => p.id);
+  const totalPertemuan = pertemuanIds.length;
+
+  const { data: absensiAll } = pertemuanIds.length > 0
+    ? await supabase.from("absensi").select("mahasiswa_id").in("pertemuan_id", pertemuanIds)
+    : { data: [] };
+
+  const { data: nilaiAll } = await supabase
+    .from("nilai")
+    .select("*")
+    .eq("mk_id", id);
+
+  const absensiCount: Record<string, number> = {};
+  for (const a of absensiAll || []) {
+    absensiCount[a.mahasiswa_id] = (absensiCount[a.mahasiswa_id] || 0) + 1;
+  }
+
+  const nilaiMap: Record<string, { tugas: number | null; uts: number | null; uas: number | null }> = {};
+  for (const n of nilaiAll || []) {
+    nilaiMap[n.mahasiswa_id] = { tugas: n.tugas, uts: n.uts, uas: n.uas };
+  }
+
+  const students = (mahasiswa || []).map((e: Record<string, unknown>) => {
+    const mhs = e.mahasiswa as { id: string; nim: string; nama: string };
+    const hadir = absensiCount[mhs.id] || 0;
+    const presensiPct = totalPertemuan > 0 ? (hadir / totalPertemuan) * 100 : 0;
+    const n = nilaiMap[mhs.id] || { tugas: null, uts: null, uas: null };
+    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, presensiPct, ...n };
+  });
 
   return (
     <div>
@@ -71,10 +103,7 @@ export default async function MataKuliahDetail({
                     <div className="font-medium text-sm text-gray-900">{p.judul}</div>
                     <div className="text-xs text-gray-400 mt-0.5">
                       {new Date(p.tanggal).toLocaleDateString("id-ID", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
+                        weekday: "long", day: "numeric", month: "long", year: "numeric",
                       })}
                     </div>
                   </div>
@@ -117,6 +146,8 @@ export default async function MataKuliahDetail({
           </div>
         </div>
       </div>
+
+      <RekapNilai mkId={id} initialStudents={students} />
     </div>
   );
 }
