@@ -92,7 +92,7 @@ export default function LoginPage() {
                 letterSpacing: "0.02em", color: "#fff"
               }}>KK</div>
               <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: 260, color: "#fff" }}>
-                Kuliah Kita — Platform Perkuliahan
+                Platform Perkuliahan Perbankan dan Keuangan Digital
               </div>
             </div>
 
