@@ -28,7 +28,7 @@ export default async function MahasiswaMKDetail({
     .from("pertemuan")
     .select("*, materi(count), tugas(count)")
     .eq("mk_id", id)
-    .order("tanggal", { ascending: false });
+    .order("tanggal", { ascending: true });
 
   // Rekap nilai
   const pertemuanIds = (pertemuan || []).map((p) => p.id);

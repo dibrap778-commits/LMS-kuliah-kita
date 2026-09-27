@@ -27,7 +27,7 @@ export default async function MataKuliahDetail({
     .from("pertemuan")
     .select("*, absensi(count), tugas(count)")
     .eq("mk_id", id)
-    .order("tanggal", { ascending: false });
+    .order("tanggal", { ascending: true });
 
   const { data: mahasiswa } = await supabase
     .from("enrollment")
