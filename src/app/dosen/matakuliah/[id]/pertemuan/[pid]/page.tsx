@@ -197,7 +197,7 @@ export default async function PertemuanDetail({
                         {submissions
                           .filter((s) => s.tugas_id === t.id)
                           .map((s) => {
-                            const mhs = s.mahasiswa as { nim: string; nama: string };
+                            const mhs = s.mahasiswa as unknown as { nim: string; nama: string };
                             return (
                               <div key={s.id}>
                                 <div className="flex items-center justify-between text-xs mb-1">
