@@ -112,18 +112,19 @@ export default async function MataKuliahDetail({
 
           <TambahPertemuan mkId={id} />
 
-          {!pertemuan || pertemuan.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-xl border border-gray-200">
-              <p className="text-gray-500 text-sm">Belum ada pertemuan.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {pertemuan.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/dosen/matakuliah/${id}/pertemuan/${p.id}`}
-                  className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3 hover:border-emerald-300 transition-colors"
-                >
+          <div className="space-y-2">
+            {(pertemuan || []).map((p, i) => (
+              <Link
+                key={p.id}
+                href={`/dosen/matakuliah/${id}/pertemuan/${p.id}`}
+                className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3 hover:border-emerald-300 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span style={{
+                    width: 26, height: 26, borderRadius: "50%", background: "#dcf2e4",
+                    color: "#177a4d", fontSize: 11, fontWeight: 700,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+                  }}>{i + 1}</span>
                   <div>
                     <div className="font-medium text-sm text-gray-900">{p.judul}</div>
                     <div className="text-xs text-gray-400 mt-0.5">
@@ -132,20 +133,37 @@ export default async function MataKuliahDetail({
                       })}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-400">
-                    {p.absensi_buka && (
-                      <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
-                        Absensi Dibuka
-                      </span>
-                    )}
-                    <span>{p.absensi?.[0]?.count || 0} hadir</span>
-                    <span>{p.tugas?.[0]?.count || 0} tugas</span>
-                    <span className="text-gray-300">&rsaquo;</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                  {p.absensi_buka && (
+                    <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
+                      Absensi Dibuka
+                    </span>
+                  )}
+                  <span>{p.absensi?.[0]?.count || 0} hadir</span>
+                  <span>{p.tugas?.[0]?.count || 0} tugas</span>
+                  <span className="text-gray-300">&rsaquo;</span>
+                </div>
+              </Link>
+            ))}
+            {Array.from({ length: Math.max(0, 16 - (pertemuan?.length || 0)) }, (_, i) => (
+              <div
+                key={`empty-${i}`}
+                className="flex items-center justify-between rounded-lg border border-dashed border-gray-200 px-4 py-3"
+                style={{ background: "#fafafa" }}
+              >
+                <div className="flex items-center gap-3">
+                  <span style={{
+                    width: 26, height: 26, borderRadius: "50%", background: "#f0f0ee",
+                    color: "rgba(0,0,0,.25)", fontSize: 11, fontWeight: 700,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+                  }}>{(pertemuan?.length || 0) + i + 1}</span>
+                  <div className="text-sm text-gray-400">Pertemuan {(pertemuan?.length || 0) + i + 1}</div>
+                </div>
+                <span className="text-xs text-gray-300">Belum ada konten</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>

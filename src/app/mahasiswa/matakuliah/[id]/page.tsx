@@ -105,18 +105,19 @@ export default async function MahasiswaMKDetail({
         {mk.deskripsi && <p className="text-sm text-gray-500 mt-1">{mk.deskripsi}</p>}
       </div>
 
-      {!pertemuan || pertemuan.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-          <p className="text-gray-500">Belum ada pertemuan.</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {pertemuan.map((p) => (
-            <Link
-              key={p.id}
-              href={`/mahasiswa/matakuliah/${id}/pertemuan/${p.id}`}
-              className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3 hover:border-emerald-300 transition-colors"
-            >
+      <div className="space-y-2">
+        {(pertemuan || []).map((p, i) => (
+          <Link
+            key={p.id}
+            href={`/mahasiswa/matakuliah/${id}/pertemuan/${p.id}`}
+            className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3 hover:border-emerald-300 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span style={{
+                width: 26, height: 26, borderRadius: "50%", background: "#dcf2e4",
+                color: "#177a4d", fontSize: 11, fontWeight: 700,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+              }}>{i + 1}</span>
               <div>
                 <div className="font-medium text-sm text-gray-900">{p.judul}</div>
                 <div className="text-xs text-gray-400 mt-0.5">
@@ -125,20 +126,40 @@ export default async function MahasiswaMKDetail({
                   })}
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs text-gray-400">
-                {p.absensi_buka && (
-                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
-                    Absensi Dibuka
-                  </span>
-                )}
-                <span>{p.materi?.[0]?.count || 0} materi</span>
-                <span>{p.tugas?.[0]?.count || 0} tugas</span>
-                <span className="text-gray-300">&rsaquo;</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-gray-400">
+              {p.absensi_buka && (
+                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
+                  Absensi Dibuka
+                </span>
+              )}
+              <span>{p.materi?.[0]?.count || 0} materi</span>
+              <span>{p.tugas?.[0]?.count || 0} tugas</span>
+              <span className="text-gray-300">&rsaquo;</span>
+            </div>
+          </Link>
+        ))}
+        {Array.from({ length: Math.max(0, 16 - (pertemuan?.length || 0)) }, (_, i) => (
+          <div
+            key={`empty-${i}`}
+            className="flex items-center justify-between rounded-lg border border-dashed border-gray-200 px-4 py-3"
+            style={{ background: "#fafafa" }}
+          >
+            <div className="flex items-center gap-3">
+              <span style={{
+                width: 26, height: 26, borderRadius: "50%", background: "#f0f0ee",
+                color: "rgba(0,0,0,.2)", fontSize: 11, fontWeight: 700,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+              }}>{(pertemuan?.length || 0) + i + 1}</span>
+              <div>
+                <div className="text-sm text-gray-400">Pertemuan {(pertemuan?.length || 0) + i + 1}</div>
+                <div className="text-xs text-gray-300 mt-0.5">Menunggu materi dari dosen</div>
               </div>
-            </Link>
-          ))}
-        </div>
-      )}
+            </div>
+            <span style={{ fontSize: 16 }}>🔒</span>
+          </div>
+        ))}
+      </div>
 
       {/* Rekap Nilai */}
       <div style={{ marginTop: 40 }}>

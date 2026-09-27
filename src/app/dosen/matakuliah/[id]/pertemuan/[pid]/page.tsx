@@ -6,6 +6,7 @@ import TambahMateri from "./TambahMateri";
 import TambahTugas from "./TambahTugas";
 import HapusTugas from "./HapusTugas";
 import BeriNilai from "./BeriNilai";
+import EditPertemuan from "./EditPertemuan";
 
 export default async function PertemuanDetail({
   params,
@@ -59,18 +60,29 @@ export default async function PertemuanDetail({
       </Link>
 
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">{pertemuan.judul}</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {new Date(pertemuan.tanggal).toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
-        {pertemuan.deskripsi && (
-          <p className="text-sm text-gray-600 mt-2">{pertemuan.deskripsi}</p>
-        )}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">{pertemuan.judul}</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {new Date(pertemuan.tanggal).toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+            {pertemuan.deskripsi && (
+              <p className="text-sm text-gray-600 mt-2">{pertemuan.deskripsi}</p>
+            )}
+          </div>
+          <EditPertemuan
+            pertemuanId={pid}
+            mkId={id}
+            initialJudul={pertemuan.judul}
+            initialTanggal={pertemuan.tanggal}
+            initialDeskripsi={pertemuan.deskripsi ?? null}
+          />
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

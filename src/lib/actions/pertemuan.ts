@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 
@@ -69,5 +70,27 @@ export async function deleteMateri(id: string) {
 
   const supabase = createServerClient();
   await supabase.from("materi").delete().eq("id", id);
+  return { success: true };
+}
+
+export async function editPertemuan(
+  pertemuanId: string,
+  mkId: string,
+  judul: string,
+  tanggal: string,
+  deskripsi: string
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("pertemuan")
+    .update({ judul, tanggal, deskripsi: deskripsi || null })
+    .eq("id", pertemuanId);
+
+  if (error) return { error: "Gagal mengubah pertemuan" };
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  revalidatePath(`/dosen/matakuliah/${mkId}`);
   return { success: true };
 }
