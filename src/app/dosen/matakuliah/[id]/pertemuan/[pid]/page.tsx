@@ -5,6 +5,7 @@ import AbsensiToggle from "./AbsensiToggle";
 import TambahMateri from "./TambahMateri";
 import TambahTugas from "./TambahTugas";
 import HapusTugas from "./HapusTugas";
+import BeriNilai from "./BeriNilai";
 
 export default async function PertemuanDetail({
   params,
@@ -40,13 +41,13 @@ export default async function PertemuanDetail({
     .eq("pertemuan_id", pid)
     .order("created_at");
 
-  const { data: submissions } = await supabase
-    .from("submission")
-    .select("*, mahasiswa:mahasiswa_id(nim, nama), tugas:tugas_id(judul)")
-    .in(
-      "tugas_id",
-      (tugasList || []).map((t) => t.id)
-    );
+  const tugasIds = (tugasList || []).map((t) => t.id);
+  const { data: submissions } = tugasIds.length > 0
+    ? await supabase
+        .from("submission")
+        .select("id, tugas_id, mahasiswa_id, file_url, nama_file, waktu_submit, nilai, feedback, mahasiswa:mahasiswa_id(nim, nama)")
+        .in("tugas_id", tugasIds)
+    : { data: [] };
 
   return (
     <div>
@@ -192,26 +193,26 @@ export default async function PertemuanDetail({
                     </p>
 
                     {submissions && submissions.filter((s) => s.tugas_id === t.id).length > 0 && (
-                      <div className="mt-3 border-t border-gray-100 pt-3 space-y-1.5">
+                      <div className="mt-3 border-t border-gray-100 pt-3 space-y-3">
                         {submissions
                           .filter((s) => s.tugas_id === t.id)
                           .map((s) => {
                             const mhs = s.mahasiswa as { nim: string; nama: string };
                             return (
-                              <div key={s.id} className="flex items-center justify-between text-xs">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-gray-700">{mhs.nama}</span>
-                                  <span className="text-gray-400 font-mono">{mhs.nim}</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-gray-400">
-                                    {new Date(s.waktu_submit).toLocaleDateString("id-ID", {
-                                      day: "numeric",
-                                      month: "short",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                                  </span>
+                              <div key={s.id}>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-700 font-medium">{mhs.nama}</span>
+                                    <span className="text-gray-400 font-mono">{mhs.nim}</span>
+                                    <span className="text-gray-400">
+                                      {new Date(s.waktu_submit).toLocaleDateString("id-ID", {
+                                        day: "numeric",
+                                        month: "short",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                  </div>
                                   <a
                                     href={s.file_url}
                                     target="_blank"
@@ -221,6 +222,18 @@ export default async function PertemuanDetail({
                                     {s.nama_file || "Unduh"}
                                   </a>
                                 </div>
+                                {s.feedback && (
+                                  <p className="text-xs text-gray-500 italic mb-1 pl-1">
+                                    Feedback: {s.feedback}
+                                  </p>
+                                )}
+                                <BeriNilai
+                                  submissionId={s.id}
+                                  mkId={id}
+                                  pertemuanId={pid}
+                                  initialNilai={s.nilai ?? null}
+                                  initialFeedback={s.feedback ?? null}
+                                />
                               </div>
                             );
                           })}

@@ -44,25 +44,50 @@ export default async function MataKuliahDetail({
 
   const { data: nilaiAll } = await supabase
     .from("nilai")
-    .select("*")
+    .select("mahasiswa_id, uts, uas")
     .eq("mk_id", id);
+
+  // Hitung rata-rata tugas dari submission yang sudah dinilai
+  const { data: tugasAll } = pertemuanIds.length > 0
+    ? await supabase.from("tugas").select("id").in("pertemuan_id", pertemuanIds)
+    : { data: [] };
+
+  const tugasIds = (tugasAll || []).map((t) => t.id);
+  const { data: submissionNilai } = tugasIds.length > 0
+    ? await supabase
+        .from("submission")
+        .select("mahasiswa_id, nilai")
+        .in("tugas_id", tugasIds)
+        .not("nilai", "is", null)
+    : { data: [] };
+
+  const tugasAkumulasi: Record<string, { sum: number; count: number }> = {};
+  for (const s of submissionNilai || []) {
+    if (s.nilai !== null) {
+      if (!tugasAkumulasi[s.mahasiswa_id]) tugasAkumulasi[s.mahasiswa_id] = { sum: 0, count: 0 };
+      tugasAkumulasi[s.mahasiswa_id].sum += s.nilai;
+      tugasAkumulasi[s.mahasiswa_id].count += 1;
+    }
+  }
 
   const absensiCount: Record<string, number> = {};
   for (const a of absensiAll || []) {
     absensiCount[a.mahasiswa_id] = (absensiCount[a.mahasiswa_id] || 0) + 1;
   }
 
-  const nilaiMap: Record<string, { tugas: number | null; uts: number | null; uas: number | null }> = {};
+  const nilaiMap: Record<string, { uts: number | null; uas: number | null }> = {};
   for (const n of nilaiAll || []) {
-    nilaiMap[n.mahasiswa_id] = { tugas: n.tugas, uts: n.uts, uas: n.uas };
+    nilaiMap[n.mahasiswa_id] = { uts: n.uts, uas: n.uas };
   }
 
   const students = (mahasiswa || []).map((e: Record<string, unknown>) => {
     const mhs = e.mahasiswa as { id: string; nim: string; nama: string };
     const hadir = absensiCount[mhs.id] || 0;
     const presensiPct = totalPertemuan > 0 ? (hadir / totalPertemuan) * 100 : 0;
-    const n = nilaiMap[mhs.id] || { tugas: null, uts: null, uas: null };
-    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, presensiPct, ...n };
+    const n = nilaiMap[mhs.id] || { uts: null, uas: null };
+    const tugasAcc = tugasAkumulasi[mhs.id];
+    const tugas = tugasAcc ? Math.round(tugasAcc.sum / tugasAcc.count) : null;
+    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, presensiPct, tugas, ...n };
   });
 
   return (

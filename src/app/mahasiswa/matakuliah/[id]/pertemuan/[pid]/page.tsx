@@ -41,14 +41,14 @@ export default async function MahasiswaPertemuanDetail({
     .eq("pertemuan_id", pid)
     .order("created_at");
 
-  const { data: mySubmissions } = await supabase
-    .from("submission")
-    .select("*")
-    .eq("mahasiswa_id", session!.id)
-    .in(
-      "tugas_id",
-      (tugasList || []).map((t) => t.id)
-    );
+  const tugasIds = (tugasList || []).map((t) => t.id);
+  const { data: mySubmissions } = tugasIds.length > 0
+    ? await supabase
+        .from("submission")
+        .select("id, tugas_id, file_url, nama_file, waktu_submit, nilai, feedback")
+        .eq("mahasiswa_id", session!.id)
+        .in("tugas_id", tugasIds)
+    : { data: [] };
 
   function getYoutubeEmbedUrl(url: string) {
     try {
@@ -210,20 +210,49 @@ export default async function MahasiswaPertemuanDetail({
                   </p>
 
                   {sub ? (
-                    <div className="bg-gray-50 rounded-lg px-4 py-2 text-sm text-gray-600">
-                      <span className="text-xs text-gray-400">File: </span>
-                      <a href={sub.file_url} target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
-                        {sub.nama_file || "Lihat file"}
-                      </a>
-                      <span className="text-xs text-gray-400 ml-3">
-                        Dikirim{" "}
-                        {new Date(sub.waktu_submit).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                    <div className="space-y-2">
+                      <div className="bg-gray-50 rounded-lg px-4 py-2.5 flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>Dikirim{" "}
+                            {new Date(sub.waktu_submit).toLocaleDateString("id-ID", {
+                              day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <a href={sub.file_url} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-emerald-700 hover:underline">
+                          {sub.nama_file || "Lihat file"}
+                        </a>
+                      </div>
+                      {sub.nilai !== null ? (
+                        <div style={{
+                          borderRadius: 10, border: "1px solid rgba(0,0,0,.08)",
+                          padding: "12px 16px", background: "#fff"
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: sub.feedback ? 8 : 0 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "#3E3A2F" }}>Nilai dari Dosen</span>
+                            <span style={{
+                              fontSize: 20, fontWeight: 800,
+                              color: sub.nilai >= 60 ? "#177a4d" : "#c23b3b"
+                            }}>
+                              {sub.nilai}
+                            </span>
+                          </div>
+                          {sub.feedback && (
+                            <div style={{
+                              background: "#f9f8f5", borderRadius: 7,
+                              padding: "8px 12px", fontSize: 13, color: "#4a4540"
+                            }}>
+                              <span style={{ fontWeight: 600, fontSize: 12, color: "#65635d" }}>Catatan dosen: </span>
+                              {sub.feedback}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-400 italic px-1">
+                          Menunggu penilaian dari dosen...
+                        </div>
+                      )}
                     </div>
                   ) : !isPastDeadline ? (
                     <SubmitTugas tugasId={t.id} mkId={id} pertemuanId={pid} />

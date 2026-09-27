@@ -38,7 +38,7 @@ export default function RekapNilai({
 
   async function handleBlur(
     mahasiswaId: string,
-    field: "tugas" | "uts" | "uas",
+    field: "uts" | "uas",
     raw: string
   ) {
     const parsed = raw === "" ? null : Math.min(100, Math.max(0, Number(raw)));
@@ -124,11 +124,22 @@ export default function RekapNilai({
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ background: "#fafafa", borderBottom: "1px solid rgba(0,0,0,.08)" }}>
-                {["Mahasiswa", "NIM", "Presensi", "Tugas", "UTS", "UAS", "Nilai Akhir"].map((h) => (
-                  <th key={h} style={{
-                    padding: "10px 14px", textAlign: h === "Mahasiswa" ? "left" : "center",
+                {[
+                  { label: "Mahasiswa", sub: null },
+                  { label: "NIM", sub: null },
+                  { label: "Presensi", sub: null },
+                  { label: "Tugas", sub: "rata-rata submission" },
+                  { label: "UTS", sub: null },
+                  { label: "UAS", sub: null },
+                  { label: "Nilai Akhir", sub: null },
+                ].map((h) => (
+                  <th key={h.label} style={{
+                    padding: "10px 14px", textAlign: h.label === "Mahasiswa" ? "left" : "center",
                     fontSize: 12.5, fontWeight: 600, color: "rgba(0,0,0,.45)"
-                  }}>{h}</th>
+                  }}>
+                    {h.label}
+                    {h.sub && <div style={{ fontSize: 10, fontWeight: 400, color: "rgba(0,0,0,.3)" }}>{h.sub}</div>}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -140,7 +151,18 @@ export default function RekapNilai({
                     <td style={{ padding: "10px 14px", color: "#1a1a1a" }}>{row.nama}</td>
                     <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "rgba(0,0,0,.5)", fontSize: 13 }}>{row.nim}</td>
                     <td style={{ padding: "10px 14px", textAlign: "center", color: "#1a1a1a" }}>{row.presensiPct.toFixed(0)}%</td>
-                    {(["tugas", "uts", "uas"] as const).map((field) => (
+                    {/* Tugas: read-only, otomatis dari submission */}
+                    <td style={{ padding: "10px 14px", textAlign: "center" }}>
+                      <span style={{
+                        fontWeight: 600,
+                        color: row.tugas !== null ? "#1a1a1a" : "rgba(0,0,0,.3)",
+                        fontSize: 14
+                      }}>
+                        {row.tugas !== null ? row.tugas : "—"}
+                      </span>
+                    </td>
+                    {/* UTS & UAS: input manual */}
+                    {(["uts", "uas"] as const).map((field) => (
                       <td key={field} style={{ padding: "10px 14px", textAlign: "center" }}>
                         <input
                           type="number"

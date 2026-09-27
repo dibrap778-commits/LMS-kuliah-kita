@@ -48,14 +48,33 @@ export default async function MahasiswaMKDetail({
 
   const { data: nilaiData } = await supabase
     .from("nilai")
-    .select("tugas, uts, uas")
+    .select("uts, uas")
     .eq("mahasiswa_id", session.id)
     .eq("mk_id", id)
     .single();
 
-  const tugas = nilaiData?.tugas ?? null;
   const uts = nilaiData?.uts ?? null;
   const uas = nilaiData?.uas ?? null;
+
+  // Hitung rata-rata nilai tugas dari submission
+  const { data: tugasAll } = pertemuanIds.length > 0
+    ? await supabase.from("tugas").select("id").in("pertemuan_id", pertemuanIds)
+    : { data: [] };
+
+  const tugasIds = (tugasAll || []).map((t) => t.id);
+  const { data: mySubmissionNilai } = tugasIds.length > 0
+    ? await supabase
+        .from("submission")
+        .select("nilai")
+        .eq("mahasiswa_id", session.id)
+        .in("tugas_id", tugasIds)
+        .not("nilai", "is", null)
+    : { data: [] };
+
+  const tugasNilaiList = (mySubmissionNilai || []).map((s) => s.nilai).filter((v) => v !== null);
+  const tugas = tugasNilaiList.length > 0
+    ? Math.round(tugasNilaiList.reduce((a: number, b: number) => a + b, 0) / tugasNilaiList.length)
+    : null;
 
   const nilaiAkhir =
     tugas !== null && uts !== null && uas !== null
