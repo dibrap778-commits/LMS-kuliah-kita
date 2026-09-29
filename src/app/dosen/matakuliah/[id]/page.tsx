@@ -44,7 +44,7 @@ export default async function MataKuliahDetail({
 
   const { data: nilaiAll } = await supabase
     .from("nilai")
-    .select("mahasiswa_id, uts, uas")
+    .select("mahasiswa_id, tugas, uts, uas")
     .eq("mk_id", id);
 
   // Hitung rata-rata tugas dari submission yang sudah dinilai
@@ -75,19 +75,20 @@ export default async function MataKuliahDetail({
     absensiCount[a.mahasiswa_id] = (absensiCount[a.mahasiswa_id] || 0) + 1;
   }
 
-  const nilaiMap: Record<string, { uts: number | null; uas: number | null }> = {};
+  const nilaiMap: Record<string, { tugas: number | null; uts: number | null; uas: number | null }> = {};
   for (const n of nilaiAll || []) {
-    nilaiMap[n.mahasiswa_id] = { uts: n.uts, uas: n.uas };
+    nilaiMap[n.mahasiswa_id] = { tugas: n.tugas ?? null, uts: n.uts, uas: n.uas };
   }
 
   const students = (mahasiswa || []).map((e: Record<string, unknown>) => {
     const mhs = e.mahasiswa as { id: string; nim: string; nama: string };
     const hadir = absensiCount[mhs.id] || 0;
     const presensiPct = totalPertemuan > 0 ? (hadir / totalPertemuan) * 100 : 0;
-    const n = nilaiMap[mhs.id] || { uts: null, uas: null };
+    const n = nilaiMap[mhs.id] || { tugas: null, uts: null, uas: null };
     const tugasAcc = tugasAkumulasi[mhs.id];
-    const tugas = tugasAcc ? Math.round(tugasAcc.sum / tugasAcc.count) : null;
-    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, presensiPct, tugas, ...n };
+    // submission average takes priority; fall back to manual entry in nilai table
+    const tugas = tugasAcc ? Math.round(tugasAcc.sum / tugasAcc.count) : n.tugas;
+    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, presensiPct, tugas, tugasIsAuto: !!tugasAcc, uts: n.uts, uas: n.uas };
   });
 
   return (

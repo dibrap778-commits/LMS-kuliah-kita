@@ -7,6 +7,8 @@ import TambahTugas from "./TambahTugas";
 import HapusTugas from "./HapusTugas";
 import BeriNilai from "./BeriNilai";
 import EditPertemuan from "./EditPertemuan";
+import EditTugas from "./EditTugas";
+import EditLinkMeeting from "./EditLinkMeeting";
 
 export default async function PertemuanDetail({
   params,
@@ -75,13 +77,20 @@ export default async function PertemuanDetail({
               <p className="text-sm text-gray-600 mt-2">{pertemuan.deskripsi}</p>
             )}
           </div>
-          <EditPertemuan
-            pertemuanId={pid}
-            mkId={id}
-            initialJudul={pertemuan.judul}
-            initialTanggal={pertemuan.tanggal}
-            initialDeskripsi={pertemuan.deskripsi ?? null}
-          />
+          <div className="flex flex-col items-end gap-2">
+            <EditPertemuan
+              pertemuanId={pid}
+              mkId={id}
+              initialJudul={pertemuan.judul}
+              initialTanggal={pertemuan.tanggal}
+              initialDeskripsi={pertemuan.deskripsi ?? null}
+            />
+            <EditLinkMeeting
+              pertemuanId={pid}
+              mkId={id}
+              initialLink={pertemuan.link_meeting ?? null}
+            />
+          </div>
         </div>
       </div>
 
@@ -173,10 +182,18 @@ export default async function PertemuanDetail({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-medium text-sm text-gray-900">{t.judul}</h3>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">
                           {t.submission?.[0]?.count || 0} dikumpulkan
                         </span>
+                        <EditTugas
+                          tugasId={t.id}
+                          pertemuanId={pid}
+                          mkId={id}
+                          initialJudul={t.judul}
+                          initialDeskripsi={t.deskripsi ?? null}
+                          initialDeadline={t.deadline}
+                        />
                         <HapusTugas tugasId={t.id} pertemuanId={pid} mkId={id} />
                       </div>
                     </div>

@@ -94,3 +94,23 @@ export async function editPertemuan(
   revalidatePath(`/dosen/matakuliah/${mkId}`);
   return { success: true };
 }
+
+export async function saveLinkMeeting(
+  pertemuanId: string,
+  mkId: string,
+  link: string | null
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("pertemuan")
+    .update({ link_meeting: link })
+    .eq("id", pertemuanId);
+
+  if (error) return { error: "Gagal menyimpan link meeting" };
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  revalidatePath(`/dosen/matakuliah/${mkId}`);
+  return { success: true };
+}

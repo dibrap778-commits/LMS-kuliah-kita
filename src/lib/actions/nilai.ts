@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 export async function saveNilai(
   mahasiswaId: string,
   mkId: string,
-  field: "uts" | "uas",
+  field: "tugas" | "uts" | "uas",
   value: number | null
 ) {
   const session = await getSession();

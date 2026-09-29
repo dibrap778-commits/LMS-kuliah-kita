@@ -88,6 +88,21 @@ export default async function MahasiswaPertemuanDetail({
         {pertemuan.deskripsi && (
           <p className="text-sm text-gray-600 mt-2">{pertemuan.deskripsi}</p>
         )}
+        {pertemuan.link_meeting && (
+          <a
+            href={pertemuan.link_meeting}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 7,
+              marginTop: 12, padding: "8px 16px", borderRadius: 8,
+              background: "#185B37", color: "#fff",
+              fontSize: 13, fontWeight: 600, textDecoration: "none"
+            }}
+          >
+            🎥 Gabung Meeting
+          </a>
+        )}
       </div>
 
       {/* Absensi */}

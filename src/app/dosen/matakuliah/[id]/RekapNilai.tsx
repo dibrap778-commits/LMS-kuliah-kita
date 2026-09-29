@@ -9,6 +9,7 @@ type StudentRow = {
   nama: string;
   presensiPct: number;
   tugas: number | null;
+  tugasIsAuto: boolean;
   uts: number | null;
   uas: number | null;
 };
@@ -38,7 +39,7 @@ export default function RekapNilai({
 
   async function handleBlur(
     mahasiswaId: string,
-    field: "uts" | "uas",
+    field: "tugas" | "uts" | "uas",
     raw: string
   ) {
     const parsed = raw === "" ? null : Math.min(100, Math.max(0, Number(raw)));
@@ -128,7 +129,7 @@ export default function RekapNilai({
                   { label: "Mahasiswa", sub: null },
                   { label: "NIM", sub: null },
                   { label: "Presensi", sub: null },
-                  { label: "Tugas", sub: "rata-rata submission" },
+                  { label: "Tugas", sub: "submission / manual" },
                   { label: "UTS", sub: null },
                   { label: "UAS", sub: null },
                   { label: "Nilai Akhir", sub: null },
@@ -151,15 +152,30 @@ export default function RekapNilai({
                     <td style={{ padding: "10px 14px", color: "#1a1a1a" }}>{row.nama}</td>
                     <td style={{ padding: "10px 14px", textAlign: "center", fontFamily: "monospace", color: "rgba(0,0,0,.5)", fontSize: 13 }}>{row.nim}</td>
                     <td style={{ padding: "10px 14px", textAlign: "center", color: "#1a1a1a" }}>{row.presensiPct.toFixed(0)}%</td>
-                    {/* Tugas: read-only, otomatis dari submission */}
+                    {/* Tugas: auto dari submission jika ada, manual jika tidak */}
                     <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                      <span style={{
-                        fontWeight: 600,
-                        color: row.tugas !== null ? "#1a1a1a" : "rgba(0,0,0,.3)",
-                        fontSize: 14
-                      }}>
-                        {row.tugas !== null ? row.tugas : "—"}
-                      </span>
+                      {row.tugasIsAuto ? (
+                        <span style={{ fontWeight: 600, color: "#1a1a1a", fontSize: 14 }} title="Rata-rata dari submission LMS">
+                          {row.tugas}
+                          <span style={{ fontSize: 9, color: "rgba(0,0,0,.3)", marginLeft: 2 }}>auto</span>
+                        </span>
+                      ) : (
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          defaultValue={row.tugas ?? ""}
+                          placeholder="—"
+                          onBlur={(e) => handleBlur(row.id, "tugas", e.target.value)}
+                          title="Input manual (WA/luar LMS)"
+                          style={{
+                            width: 56, textAlign: "center", padding: "4px 6px",
+                            border: saving === `${row.id}-tugas` ? "1.5px solid #1f9d63" : "1px solid rgba(0,0,0,.15)",
+                            borderRadius: 6, fontSize: 14, fontFamily: "inherit",
+                            outline: "none", background: "#fffce8"
+                          }}
+                        />
+                      )}
                     </td>
                     {/* UTS & UAS: input manual */}
                     {(["uts", "uas"] as const).map((field) => (

@@ -85,12 +85,12 @@ export default function LoginPage() {
               display: "flex", alignItems: "center", gap: 14, pointerEvents: "none"
             }}>
               <div style={{
-                width: 44, height: 44, borderRadius: 12,
-                background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.25)",
-                backdropFilter: "blur(10px)", display: "flex", alignItems: "center",
-                justifyContent: "center", fontWeight: 800, fontSize: 15,
-                letterSpacing: "0.02em", color: "#fff"
-              }}>KK</div>
+                width: 50, height: 50, borderRadius: 10,
+                background: "#fff", padding: 4, flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center"
+              }}>
+                <img src="/logo-primaniyarta.png" alt="ABK Primaniyarta" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </div>
               <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: 260, color: "#fff" }}>
                 Platform Perkuliahan Perbankan dan Keuangan Digital
               </div>

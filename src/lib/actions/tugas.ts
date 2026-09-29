@@ -30,6 +30,28 @@ export async function createTugas(formData: FormData) {
   return { success: true };
 }
 
+export async function editTugas(
+  tugasId: string,
+  pertemuanId: string,
+  mkId: string,
+  judul: string,
+  deskripsi: string,
+  deadline: string
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("tugas")
+    .update({ judul, deskripsi: deskripsi || null, deadline })
+    .eq("id", tugasId);
+
+  if (error) return { error: "Gagal mengubah tugas" };
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  return { success: true };
+}
+
 export async function deleteTugas(tugasId: string, pertemuanId: string, mkId: string) {
   const session = await getSession();
   if (!session || session.role !== "dosen") return { error: "Unauthorized" };
