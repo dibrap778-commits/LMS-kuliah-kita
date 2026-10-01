@@ -17,14 +17,25 @@ export default async function MahasiswaDashboard() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Mata Kuliah Saya</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-gray-900">Mata Kuliah Saya</h1>
+        <Link
+          href="/mahasiswa/kelola-mk"
+          className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition-colors"
+        >
+          Kelola Mata Kuliah
+        </Link>
+      </div>
 
       {mataKuliah.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
           <p className="text-gray-500">Belum terdaftar di mata kuliah manapun.</p>
-          <p className="text-sm text-gray-400 mt-1">
-            Hubungi dosen untuk informasi pendaftaran.
-          </p>
+          <Link
+            href="/mahasiswa/kelola-mk"
+            className="text-sm text-emerald-700 hover:underline mt-1 inline-block"
+          >
+            Daftar mata kuliah sekarang
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
