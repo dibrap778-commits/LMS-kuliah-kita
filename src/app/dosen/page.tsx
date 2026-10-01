@@ -44,13 +44,19 @@ export default async function DosenDashboard() {
                 initialKode={mk.kode}
                 initialNama={mk.nama}
                 initialDeskripsi={mk.deskripsi ?? null}
+                initialSemester={mk.semester ?? null}
               />
               <Link
                 href={`/dosen/matakuliah/${mk.id}`}
                 className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-300 hover:shadow-sm transition-all"
               >
-                <div className="text-xs font-mono text-emerald-700 mb-1 pr-8">
-                  {mk.kode}
+                <div className="flex items-center gap-2 mb-1 pr-8">
+                  <span className="text-xs font-mono text-emerald-700">{mk.kode}</span>
+                  {mk.semester && (
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
+                      Sem {mk.semester}
+                    </span>
+                  )}
                 </div>
                 <h2 className="font-semibold text-gray-900 mb-2 pr-8">{mk.nama}</h2>
                 {mk.deskripsi && (

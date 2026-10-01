@@ -64,6 +64,22 @@ export default function BuatMataKuliah() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
+              Semester
+            </label>
+            <select
+              name="semester"
+              required
+              defaultValue=""
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+            >
+              <option value="" disabled>Pilih semester</option>
+              {Array.from({ length: 8 }, (_, i) => i + 1).map((s) => (
+                <option key={s} value={s}>Semester {s}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Deskripsi
             </label>
             <textarea

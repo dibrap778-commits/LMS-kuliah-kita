@@ -10,22 +10,10 @@ export default function RegisterForm() {
   const [isDosen, setIsDosen] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mataKuliah, setMataKuliah] = useState<
-    { id: string; kode: string; nama: string }[]
-  >([]);
 
   useEffect(() => {
     if (searchParams.get("role") === "dosen") setIsDosen(true);
   }, [searchParams]);
-
-  useEffect(() => {
-    if (!isDosen) {
-      fetch("/api/matakuliah")
-        .then((r) => r.json())
-        .then((data) => setMataKuliah(data))
-        .catch(() => {});
-    }
-  }, [isDosen]);
 
   async function handleSubmit(formData: FormData) {
     setError("");
@@ -266,30 +254,6 @@ export default function RegisterForm() {
                         }}
                       />
                     </div>
-                    {mataKuliah.length > 0 && (
-                      <div>
-                        <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                          Pilih Mata Kuliah
-                        </label>
-                        <div className="mk-scroll" style={{
-                          maxHeight: 160, overflowY: "auto",
-                          border: "1.5px solid #DFDEDA", borderRadius: 10,
-                          padding: "10px 14px", background: "#fff", display: "flex", flexDirection: "column", gap: 8
-                        }}>
-                          {mataKuliah.map((mk) => (
-                            <label key={mk.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer", color: "#252117" }}>
-                              <input
-                                type="checkbox"
-                                name="mk_id"
-                                value={mk.id}
-                                style={{ accentColor: "#185B37", width: 16, height: 16, flexShrink: 0 }}
-                              />
-                              <span>{mk.kode} — {mk.nama}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
               </div>

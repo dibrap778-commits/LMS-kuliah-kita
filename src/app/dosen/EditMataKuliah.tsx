@@ -4,22 +4,23 @@ import { useState } from "react";
 import { editMataKuliah } from "@/lib/actions/matakuliah";
 
 export default function EditMataKuliah({
-  id, initialKode, initialNama, initialDeskripsi,
+  id, initialKode, initialNama, initialDeskripsi, initialSemester,
 }: {
-  id: string; initialKode: string; initialNama: string; initialDeskripsi: string | null;
+  id: string; initialKode: string; initialNama: string; initialDeskripsi: string | null; initialSemester: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const [kode, setKode] = useState(initialKode);
   const [nama, setNama] = useState(initialNama);
   const [deskripsi, setDeskripsi] = useState(initialDeskripsi ?? "");
+  const [semester, setSemester] = useState(initialSemester ? String(initialSemester) : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSave() {
-    if (!kode.trim() || !nama.trim()) return;
+    if (!kode.trim() || !nama.trim() || !semester) return;
     setSaving(true);
     setError("");
-    const res = await editMataKuliah(id, kode.trim(), nama.trim(), deskripsi);
+    const res = await editMataKuliah(id, kode.trim(), nama.trim(), deskripsi, Number(semester));
     setSaving(false);
     if (res?.error) { setError(res.error); return; }
     setOpen(false);
@@ -86,6 +87,15 @@ export default function EditMataKuliah({
                 <input type="text" value={nama} onChange={e => setNama(e.target.value)} style={inputStyle} />
               </div>
               <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#65635d", marginBottom: 4 }}>Semester</label>
+                <select value={semester} onChange={e => setSemester(e.target.value)} style={{ ...inputStyle, background: "#fff" }}>
+                  <option value="" disabled>Pilih semester</option>
+                  {Array.from({ length: 8 }, (_, i) => i + 1).map((s) => (
+                    <option key={s} value={s}>Semester {s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#65635d", marginBottom: 4 }}>Deskripsi (opsional)</label>
                 <textarea value={deskripsi} onChange={e => setDeskripsi(e.target.value)} rows={3}
                   style={{ ...inputStyle, resize: "vertical" }} />
@@ -94,12 +104,12 @@ export default function EditMataKuliah({
             <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSave(); }}
-                disabled={saving || !kode.trim() || !nama.trim()}
+                disabled={saving || !kode.trim() || !nama.trim() || !semester}
                 style={{
                   padding: "8px 18px", borderRadius: 8, background: "#185B37",
                   color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
-                  opacity: saving || !kode.trim() || !nama.trim() ? 0.6 : 1
+                  opacity: saving || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1
                 }}
               >
                 {saving ? "Menyimpan..." : "Simpan"}

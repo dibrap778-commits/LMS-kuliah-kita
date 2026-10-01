@@ -12,6 +12,7 @@ export async function createMataKuliah(formData: FormData) {
   const kode = formData.get("kode") as string;
   const nama = formData.get("nama") as string;
   const deskripsi = formData.get("deskripsi") as string;
+  const semester = Number(formData.get("semester"));
 
   const supabase = createServerClient();
 
@@ -19,6 +20,7 @@ export async function createMataKuliah(formData: FormData) {
     kode,
     nama,
     deskripsi,
+    semester,
     dosen_id: session.id,
   });
 
@@ -34,7 +36,8 @@ export async function editMataKuliah(
   id: string,
   kode: string,
   nama: string,
-  deskripsi: string
+  deskripsi: string,
+  semester: number
 ) {
   const session = await getSession();
   if (!session || session.role !== "dosen") return { error: "Unauthorized" };
@@ -42,7 +45,7 @@ export async function editMataKuliah(
   const supabase = createServerClient();
   const { error } = await supabase
     .from("mata_kuliah")
-    .update({ kode, nama, deskripsi: deskripsi || null })
+    .update({ kode, nama, deskripsi: deskripsi || null, semester })
     .eq("id", id)
     .eq("dosen_id", session.id);
 

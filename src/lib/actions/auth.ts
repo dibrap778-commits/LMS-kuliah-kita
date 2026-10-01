@@ -56,7 +56,6 @@ export async function loginMahasiswa(formData: FormData) {
 export async function registerMahasiswa(formData: FormData) {
   const nim = formData.get("nim") as string;
   const nama = formData.get("nama") as string;
-  const mkIds = formData.getAll("mk_id") as string[];
 
   const supabase = createServerClient();
 
@@ -75,14 +74,6 @@ export async function registerMahasiswa(formData: FormData) {
     .single();
 
   if (error) return { error: "Gagal mendaftar" };
-
-  if (mkIds.length > 0) {
-    const enrollments = mkIds.map((mk_id) => ({
-      mahasiswa_id: mhs.id,
-      mk_id,
-    }));
-    await supabase.from("enrollment").insert(enrollments);
-  }
 
   await createSession({
     id: mhs.id,

@@ -9,7 +9,7 @@ export default async function KelolaMKPage() {
 
   const { data: semuaMKRaw } = await supabase
     .from("mata_kuliah")
-    .select("id, kode, nama, deskripsi, dosen:dosen_id(nama)")
+    .select("id, kode, nama, deskripsi, semester, dosen:dosen_id(nama)")
     .order("kode");
 
   const semuaMK = (semuaMKRaw || []).map((mk) => {
@@ -20,6 +20,7 @@ export default async function KelolaMKPage() {
       kode: mk.kode,
       nama: mk.nama,
       deskripsi: mk.deskripsi,
+      semester: mk.semester ?? null,
       dosenNama: dosenNama ?? null,
     };
   });
