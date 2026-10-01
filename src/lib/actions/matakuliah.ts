@@ -30,6 +30,32 @@ export async function createMataKuliah(formData: FormData) {
   redirect("/dosen");
 }
 
+export async function editMataKuliah(
+  id: string,
+  kode: string,
+  nama: string,
+  deskripsi: string
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("mata_kuliah")
+    .update({ kode, nama, deskripsi: deskripsi || null })
+    .eq("id", id)
+    .eq("dosen_id", session.id);
+
+  if (error) {
+    if (error.code === "23505") return { error: "Kode MK sudah digunakan" };
+    return { error: "Gagal mengubah mata kuliah" };
+  }
+
+  revalidatePath("/dosen");
+  revalidatePath(`/dosen/matakuliah/${id}`);
+  return { success: true };
+}
+
 export async function deleteMataKuliah(id: string) {
   const session = await getSession();
   if (!session || session.role !== "dosen") return { error: "Unauthorized" };

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
+import EditMataKuliah from "./EditMataKuliah";
 
 export default async function DosenDashboard() {
   const session = await getSession();
@@ -37,25 +38,32 @@ export default async function DosenDashboard() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {mataKuliah.map((mk) => (
-            <Link
-              key={mk.id}
-              href={`/dosen/matakuliah/${mk.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-300 hover:shadow-sm transition-all"
-            >
-              <div className="text-xs font-mono text-emerald-700 mb-1">
-                {mk.kode}
-              </div>
-              <h2 className="font-semibold text-gray-900 mb-2">{mk.nama}</h2>
-              {mk.deskripsi && (
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">
-                  {mk.deskripsi}
-                </p>
-              )}
-              <div className="flex gap-4 text-xs text-gray-400">
-                <span>{mk.pertemuan?.[0]?.count || 0} pertemuan</span>
-                <span>{mk.enrollment?.[0]?.count || 0} mahasiswa</span>
-              </div>
-            </Link>
+            <div key={mk.id} className="relative">
+              <EditMataKuliah
+                id={mk.id}
+                initialKode={mk.kode}
+                initialNama={mk.nama}
+                initialDeskripsi={mk.deskripsi ?? null}
+              />
+              <Link
+                href={`/dosen/matakuliah/${mk.id}`}
+                className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-300 hover:shadow-sm transition-all"
+              >
+                <div className="text-xs font-mono text-emerald-700 mb-1 pr-8">
+                  {mk.kode}
+                </div>
+                <h2 className="font-semibold text-gray-900 mb-2 pr-8">{mk.nama}</h2>
+                {mk.deskripsi && (
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                    {mk.deskripsi}
+                  </p>
+                )}
+                <div className="flex gap-4 text-xs text-gray-400">
+                  <span>{mk.pertemuan?.[0]?.count || 0} pertemuan</span>
+                  <span>{mk.enrollment?.[0]?.count || 0} mahasiswa</span>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}
