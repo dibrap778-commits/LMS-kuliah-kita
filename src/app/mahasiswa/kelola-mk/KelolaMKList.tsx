@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { enrollMataKuliah, unenrollMataKuliah } from "@/lib/actions/matakuliah";
 
-type MK = { id: string; kode: string; nama: string; deskripsi: string | null };
+type MK = { id: string; kode: string; nama: string; deskripsi: string | null; dosenNama: string | null };
 
 export default function KelolaMKList({
   semua,
@@ -56,6 +56,9 @@ export default function KelolaMKList({
             <div className="min-w-0">
               <div className="text-xs font-mono text-emerald-700 mb-0.5">{mk.kode}</div>
               <div className="font-medium text-sm text-gray-900">{mk.nama}</div>
+              {mk.dosenNama && (
+                <div className="text-xs text-gray-500 mt-0.5">👤 {mk.dosenNama}</div>
+              )}
               {mk.deskripsi && (
                 <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">{mk.deskripsi}</div>
               )}

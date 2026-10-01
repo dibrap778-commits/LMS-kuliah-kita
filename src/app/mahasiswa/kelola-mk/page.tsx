@@ -7,10 +7,22 @@ export default async function KelolaMKPage() {
   const session = await getSession();
   const supabase = createServerClient();
 
-  const { data: semuaMK } = await supabase
+  const { data: semuaMKRaw } = await supabase
     .from("mata_kuliah")
-    .select("id, kode, nama, deskripsi")
+    .select("id, kode, nama, deskripsi, dosen:dosen_id(nama)")
     .order("kode");
+
+  const semuaMK = (semuaMKRaw || []).map((mk) => {
+    const dosen = mk.dosen as unknown as { nama: string } | { nama: string }[] | null;
+    const dosenNama = Array.isArray(dosen) ? dosen[0]?.nama : dosen?.nama;
+    return {
+      id: mk.id,
+      kode: mk.kode,
+      nama: mk.nama,
+      deskripsi: mk.deskripsi,
+      dosenNama: dosenNama ?? null,
+    };
+  });
 
   const { data: enrollments } = await supabase
     .from("enrollment")

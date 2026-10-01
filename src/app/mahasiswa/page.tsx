@@ -8,12 +8,17 @@ export default async function MahasiswaDashboard() {
 
   const { data: enrollments } = await supabase
     .from("enrollment")
-    .select("mata_kuliah:mk_id(id, kode, nama, deskripsi)")
+    .select("mata_kuliah:mk_id(id, kode, nama, deskripsi, dosen:dosen_id(nama))")
     .eq("mahasiswa_id", session!.id);
 
-  const mataKuliah = (enrollments || []).map(
-    (e: Record<string, unknown>) => e.mata_kuliah as { id: string; kode: string; nama: string; deskripsi: string }
-  );
+  const mataKuliah = (enrollments || []).map((e: Record<string, unknown>) => {
+    const mk = e.mata_kuliah as unknown as {
+      id: string; kode: string; nama: string; deskripsi: string;
+      dosen: { nama: string } | { nama: string }[] | null;
+    };
+    const dosenNama = Array.isArray(mk.dosen) ? mk.dosen[0]?.nama : mk.dosen?.nama;
+    return { id: mk.id, kode: mk.kode, nama: mk.nama, deskripsi: mk.deskripsi, dosenNama: dosenNama ?? null };
+  });
 
   return (
     <div>
@@ -47,6 +52,9 @@ export default async function MahasiswaDashboard() {
             >
               <div className="text-xs font-mono text-emerald-700 mb-1">{mk.kode}</div>
               <h2 className="font-semibold text-gray-900 mb-1">{mk.nama}</h2>
+              {mk.dosenNama && (
+                <p className="text-xs text-gray-500 mb-1">👤 {mk.dosenNama}</p>
+              )}
               {mk.deskripsi && (
                 <p className="text-sm text-gray-500 line-clamp-2">{mk.deskripsi}</p>
               )}
