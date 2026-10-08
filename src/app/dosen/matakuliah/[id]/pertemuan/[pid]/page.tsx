@@ -9,6 +9,8 @@ import BeriNilai from "./BeriNilai";
 import EditPertemuan from "./EditPertemuan";
 import EditTugas from "./EditTugas";
 import EditLinkMeeting from "./EditLinkMeeting";
+import TambahKuis from "./TambahKuis";
+import HapusKuis from "./HapusKuis";
 
 export default async function PertemuanDetail({
   params,
@@ -51,6 +53,12 @@ export default async function PertemuanDetail({
         .select("id, tugas_id, mahasiswa_id, file_url, nama_file, waktu_submit, nilai, feedback, mahasiswa:mahasiswa_id(nim, nama)")
         .in("tugas_id", tugasIds)
     : { data: [] };
+
+  const { data: kuisList } = await supabase
+    .from("kuis")
+    .select("*, kuis_soal(count)")
+    .eq("pertemuan_id", pid)
+    .order("created_at");
 
   return (
     <div>
@@ -163,6 +171,33 @@ export default async function PertemuanDetail({
                     >
                       Buka
                     </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Kuis */}
+          <div className="space-y-3">
+            <h2 className="font-semibold text-gray-900">Kuis</h2>
+            <TambahKuis pertemuanId={pid} mkId={id} />
+            {kuisList && kuisList.length > 0 && (
+              <div className="space-y-2">
+                {kuisList.map((k) => (
+                  <div
+                    key={k.id}
+                    className="bg-white rounded-lg border border-gray-200 px-4 py-3 flex items-center justify-between gap-3"
+                  >
+                    <Link
+                      href={`/dosen/matakuliah/${id}/pertemuan/${pid}/kuis/${k.id}`}
+                      className="min-w-0 flex-1"
+                    >
+                      <div className="font-medium text-sm text-gray-900">{k.judul}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {k.kuis_soal?.[0]?.count || 0} soal · {k.durasi_menit} menit
+                      </div>
+                    </Link>
+                    <HapusKuis kuisId={k.id} pertemuanId={pid} mkId={id} />
                   </div>
                 ))}
               </div>

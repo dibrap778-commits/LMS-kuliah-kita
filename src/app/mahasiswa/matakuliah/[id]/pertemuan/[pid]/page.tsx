@@ -50,6 +50,21 @@ export default async function MahasiswaPertemuanDetail({
         .in("tugas_id", tugasIds)
     : { data: [] };
 
+  const { data: kuisList } = await supabase
+    .from("kuis")
+    .select("*, kuis_soal(count)")
+    .eq("pertemuan_id", pid)
+    .order("created_at");
+
+  const kuisIds = (kuisList || []).map((k) => k.id);
+  const { data: myAttempts } = kuisIds.length > 0
+    ? await supabase
+        .from("kuis_attempt")
+        .select("kuis_id, waktu_mulai, waktu_selesai, skor")
+        .eq("mahasiswa_id", session!.id)
+        .in("kuis_id", kuisIds)
+    : { data: [] };
+
   function getYoutubeEmbedUrl(url: string) {
     try {
       const u = new URL(url);
@@ -166,6 +181,53 @@ export default async function MahasiswaPertemuanDetail({
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Kuis */}
+      {kuisList && kuisList.length > 0 && (
+        <div className="mb-6">
+          <h2 className="font-semibold text-gray-900 mb-3">Kuis</h2>
+          <div className="space-y-3">
+            {kuisList.map((k) => {
+              const attempt = myAttempts?.find((a) => a.kuis_id === k.id);
+              const selesai = attempt?.waktu_selesai;
+              const sedang = attempt && !attempt.waktu_selesai;
+              return (
+                <Link
+                  key={k.id}
+                  href={`/mahasiswa/matakuliah/${id}/pertemuan/${pid}/kuis/${k.id}`}
+                  className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-300 transition-colors"
+                >
+                  <div>
+                    <h3 className="font-medium text-gray-900">{k.judul}</h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {k.kuis_soal?.[0]?.count || 0} soal · {k.durasi_menit} menit
+                    </p>
+                  </div>
+                  {selesai ? (
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{
+                        background: (attempt!.skor ?? 0) >= 60 ? "#dcf5e6" : "#fde8e8",
+                        color: (attempt!.skor ?? 0) >= 60 ? "#177a4d" : "#c23b3b",
+                      }}
+                    >
+                      Selesai · Nilai {attempt!.skor}
+                    </span>
+                  ) : sedang ? (
+                    <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">
+                      Sedang berlangsung
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">
+                      Belum dikerjakan
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
