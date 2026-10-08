@@ -18,7 +18,7 @@ type Soal = {
 type Opt = "a" | "b" | "c" | "d";
 
 const emptyForm = {
-  pertanyaan: "", pilihan_a: "", pilihan_b: "", pilihan_c: "", pilihan_d: "", jawaban_benar: "a" as Opt,
+  pertanyaan: "", pilihan_a: "", pilihan_b: "", pilihan_c: "", pilihan_d: "", jawaban_benar: "" as Opt | "",
 };
 
 export default function KelolaSoal({
@@ -74,6 +74,10 @@ export default function KelolaSoal({
     const { pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d } = form;
     if (!pertanyaan.trim() || !pilihan_a.trim() || !pilihan_b.trim() || !pilihan_c.trim() || !pilihan_d.trim()) {
       setError("Semua field wajib diisi");
+      return;
+    }
+    if (!form.jawaban_benar) {
+      setError("Pilih salah satu opsi sebagai jawaban benar terlebih dahulu");
       return;
     }
     setSaving(true);
@@ -219,32 +223,55 @@ export default function KelolaSoal({
                 style={{ ...inputStyle, resize: "vertical" }}
               />
             </div>
-            {(["a", "b", "c", "d"] as const).map((opt) => (
-              <div key={opt} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="jawaban_benar"
-                  checked={form.jawaban_benar === opt}
-                  onChange={() => setForm((f) => ({ ...f, jawaban_benar: opt }))}
-                  style={{ accentColor: "#185B37", flexShrink: 0 }}
-                />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#65635d", width: 16, flexShrink: 0 }}>
-                  {opt.toUpperCase()}
-                </span>
-                <input
-                  value={form[`pilihan_${opt}` as "pilihan_a" | "pilihan_b" | "pilihan_c" | "pilihan_d"]}
-                  onChange={(e) => setForm((f) => ({ ...f, [`pilihan_${opt}`]: e.target.value }))}
-                  placeholder={`Pilihan ${opt.toUpperCase()}`}
-                  style={inputStyle}
-                />
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Pilihan Jawaban <span className="text-gray-400 font-normal">(klik tombol di kanan untuk tandai jawaban benar)</span>
+              </label>
+              <div className="space-y-2">
+                {(["a", "b", "c", "d"] as const).map((opt) => {
+                  const isCorrect = form.jawaban_benar === opt;
+                  return (
+                    <div
+                      key={opt}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 8,
+                        padding: 6, borderRadius: 9,
+                        border: isCorrect ? "1.5px solid #185B37" : "1.5px solid #DFDEDA",
+                        background: isCorrect ? "#eafaf1" : "#fff",
+                      }}
+                    >
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#65635d", width: 16, flexShrink: 0, textAlign: "center" }}>
+                        {opt.toUpperCase()}
+                      </span>
+                      <input
+                        value={form[`pilihan_${opt}` as "pilihan_a" | "pilihan_b" | "pilihan_c" | "pilihan_d"]}
+                        onChange={(e) => setForm((f) => ({ ...f, [`pilihan_${opt}`]: e.target.value }))}
+                        placeholder={`Pilihan ${opt.toUpperCase()}`}
+                        style={{ ...inputStyle, border: "none", padding: "4px 2px", flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, jawaban_benar: opt }))}
+                        style={{
+                          flexShrink: 0, fontSize: 11, fontWeight: 700, padding: "6px 10px",
+                          borderRadius: 7, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
+                          background: isCorrect ? "#185B37" : "#fff",
+                          color: isCorrect ? "#fff" : "#65635d",
+                          border: isCorrect ? "none" : "1px solid rgba(0,0,0,.15)",
+                        }}
+                      >
+                        {isCorrect ? "✓ Jawaban Benar" : "Tandai Benar"}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-            <p className="text-xs text-gray-400">Pilih radio di samping opsi yang merupakan jawaban benar.</p>
+            </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSaveSoal}
-              disabled={saving}
+              disabled={saving || !form.jawaban_benar}
               className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50"
             >
               {saving ? "Menyimpan..." : "Simpan Soal"}
