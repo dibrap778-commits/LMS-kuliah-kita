@@ -53,11 +53,21 @@ export default async function MahasiswaDashboard() {
               <div className="text-xs font-mono text-emerald-700 mb-1">{mk.kode}</div>
               <h2 className="font-semibold text-gray-900 mb-1">{mk.nama}</h2>
               {mk.dosenNama && (
-                <p className="text-xs text-gray-500 mb-1">👤 {mk.dosenNama}</p>
+                <p className="text-xs text-gray-500 mb-2">👤 {mk.dosenNama}</p>
               )}
               {mk.deskripsi && (
-                <p className="text-sm text-gray-500 line-clamp-2">{mk.deskripsi}</p>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{mk.deskripsi}</p>
               )}
+              <span
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "7px 14px", borderRadius: 8,
+                  background: "#185B37", color: "#fff",
+                  fontSize: 13, fontWeight: 700,
+                }}
+              >
+                Masuk Kelas <span aria-hidden="true">&rarr;</span>
+              </span>
             </Link>
           ))}
         </div>
