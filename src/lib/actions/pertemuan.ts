@@ -95,6 +95,17 @@ export async function editPertemuan(
   return { success: true };
 }
 
+export async function deletePertemuan(pertemuanId: string, mkId: string) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase.from("pertemuan").delete().eq("id", pertemuanId);
+
+  if (error) return { error: "Gagal menghapus pertemuan" };
+  redirect(`/dosen/matakuliah/${mkId}`);
+}
+
 export async function saveLinkMeeting(
   pertemuanId: string,
   mkId: string,

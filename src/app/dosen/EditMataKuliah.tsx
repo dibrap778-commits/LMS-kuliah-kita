@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { editMataKuliah } from "@/lib/actions/matakuliah";
+import { editMataKuliah, deleteMataKuliah } from "@/lib/actions/matakuliah";
 
 export default function EditMataKuliah({
   id, initialKode, initialNama, initialDeskripsi, initialSemester,
@@ -14,6 +14,7 @@ export default function EditMataKuliah({
   const [deskripsi, setDeskripsi] = useState(initialDeskripsi ?? "");
   const [semester, setSemester] = useState(initialSemester ? String(initialSemester) : "");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSave() {
@@ -24,6 +25,21 @@ export default function EditMataKuliah({
     setSaving(false);
     if (res?.error) { setError(res.error); return; }
     setOpen(false);
+  }
+
+  async function handleDelete() {
+    if (!confirm(`Hapus mata kuliah "${nama}"? Semua pertemuan, materi, tugas, kuis, dan nilai di dalamnya akan ikut terhapus permanen.`)) return;
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await deleteMataKuliah(id);
+      if (res?.error) {
+        setDeleting(false);
+        setError(res.error);
+      }
+    } catch {
+      // redirect on success
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -100,18 +116,19 @@ export default function EditMataKuliah({
             <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSave(); }}
-                disabled={saving || !kode.trim() || !nama.trim() || !semester}
+                disabled={saving || deleting || !kode.trim() || !nama.trim() || !semester}
                 style={{
                   padding: "8px 18px", borderRadius: 8, background: "#5980a6",
                   color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
-                  opacity: saving || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1
+                  opacity: saving || deleting || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1
                 }}
               >
                 {saving ? "Menyimpan..." : "Simpan"}
               </button>
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(false); setError(""); }}
+                disabled={deleting}
                 style={{
                   padding: "8px 16px", borderRadius: 8, background: "none",
                   border: "1px solid rgba(0,0,0,.15)", fontSize: 13,
@@ -119,6 +136,19 @@ export default function EditMataKuliah({
                 }}
               >
                 Batal
+              </button>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(); }}
+                disabled={deleting}
+                style={{
+                  marginLeft: "auto", padding: "8px 16px", borderRadius: 8,
+                  background: "#fef2f2", border: "1px solid #fecaca",
+                  color: "#b91c1c", fontSize: 13, fontWeight: 600,
+                  cursor: "pointer", fontFamily: "inherit",
+                  opacity: deleting ? 0.6 : 1
+                }}
+              >
+                {deleting ? "Menghapus..." : "Hapus MK"}
               </button>
             </div>
           </div>

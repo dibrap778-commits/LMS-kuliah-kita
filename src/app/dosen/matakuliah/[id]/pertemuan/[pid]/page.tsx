@@ -11,6 +11,7 @@ import EditTugas from "./EditTugas";
 import EditLinkMeeting from "./EditLinkMeeting";
 import TambahKuis from "./TambahKuis";
 import HapusKuis from "./HapusKuis";
+import HapusPertemuan from "./HapusPertemuan";
 
 export default async function PertemuanDetail({
   params,
@@ -98,6 +99,7 @@ export default async function PertemuanDetail({
               mkId={id}
               initialLink={pertemuan.link_meeting ?? null}
             />
+            <HapusPertemuan pertemuanId={pid} mkId={id} judul={pertemuan.judul} />
           </div>
         </div>
       </div>
