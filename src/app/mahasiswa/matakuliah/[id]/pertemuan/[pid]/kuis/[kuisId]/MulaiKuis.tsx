@@ -28,7 +28,7 @@ export default function MulaiKuis({ kuisId }: { kuisId: string }) {
         onClick={handleStart}
         disabled={loading}
         style={{
-          padding: "10px 28px", borderRadius: 10, background: "#185B37",
+          padding: "10px 28px", borderRadius: 10, background: "#5980a6",
           color: "#fff", border: "none", fontSize: 14, fontWeight: 700,
           fontFamily: "inherit", cursor: "pointer", opacity: loading ? 0.6 : 1,
         }}

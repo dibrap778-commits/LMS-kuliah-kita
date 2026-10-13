@@ -114,8 +114,8 @@ export default async function MahasiswaMKDetail({
           >
             <div className="flex items-center gap-3">
               <span style={{
-                width: 26, height: 26, borderRadius: "50%", background: "#dcf2e4",
-                color: "#177a4d", fontSize: 11, fontWeight: 700,
+                width: 26, height: 26, borderRadius: "50%", background: "#d6ebff",
+                color: "#416180", fontSize: 11, fontWeight: 700,
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
               }}>{i + 1}</span>
               <div>
@@ -211,7 +211,7 @@ export default async function MahasiswaMKDetail({
             color: nilaiAkhir === null
               ? "rgba(0,0,0,.25)"
               : nilaiAkhir >= 60
-              ? "#177a4d"
+              ? "#416180"
               : "#c23b3b"
           }}>
             {nilaiAkhir !== null ? nilaiAkhir : "—"}

@@ -18,22 +18,45 @@ export default function Navbar({
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href={role === "dosen" ? "/dosen" : "/mahasiswa"} className="flex items-center gap-2">
-          <span className="text-lg font-bold text-emerald-700">Kuliah Kita</span>
-        </Link>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            {nama}
-            <span className="ml-1.5 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-              {role}
-            </span>
+    <nav style={{ background: "var(--color-bg)", borderBottom: "1px solid var(--color-divider)" }}>
+      <div
+        style={{
+          maxWidth: 1160, margin: "0 auto", padding: "14px 32px",
+          display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap",
+        }}
+      >
+        <Link
+          href={role === "dosen" ? "/dosen" : "/mahasiswa"}
+          style={{ display: "flex", alignItems: "center", gap: 10, marginRight: "auto", textDecoration: "none" }}
+        >
+          <span style={{
+            width: 28, height: 28, flexShrink: 0, border: "1px solid var(--color-text)",
+            display: "grid", placeItems: "center", overflow: "hidden", background: "#fff",
+          }}>
+            <img src="/logo-primaniyarta.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </span>
+          <span style={{
+            font: "600 20px/1 var(--font-heading)", letterSpacing: ".02em",
+            textTransform: "uppercase", color: "var(--color-text)",
+          }}>
+            Akademi Bisnis dan Keuangan Primaniyarta
+          </span>
+        </Link>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14 }}>
+          <span style={{ color: "var(--color-text)" }}>{nama}</span>
+          <span className="tag tag-accent">{role}</span>
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              color: "var(--color-text)", background: "none", border: "none",
+              cursor: "pointer", font: "inherit", fontSize: 14, padding: 0,
+            }}
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
             Keluar
           </button>
         </div>

@@ -54,8 +54,8 @@ export default function LoginPage() {
           .hero-body { font-size: 14px !important; }
           .form-col { padding: 28px 20px 48px !important; }
         }
-        input:focus { outline: none; border-color: #185B37 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
-        .btn-masuk:hover { background: #004824 !important; }
+        input:focus { outline: none; border-color: #5980a6 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
+        .btn-masuk:hover { background: #2c455d !important; }
         .btn-masuk:disabled { opacity: 0.6; cursor: not-allowed; }
       `}</style>
 
@@ -64,7 +64,7 @@ export default function LoginPage() {
         <div className="hero-outer" style={{ padding: 16, minHeight: "100vh" }}>
           <div className="hero-card" style={{
             position: "relative", height: "100%", minHeight: 560,
-            borderRadius: 24, overflow: "hidden", background: "#002310"
+            borderRadius: 24, overflow: "hidden", background: "#1d2d3d"
           }}>
             {/* Foto */}
             <img
@@ -145,7 +145,7 @@ export default function LoginPage() {
                     fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none",
                     fontFamily: "inherit", transition: "all 0.15s",
                     background: tab === role ? "#fff" : "transparent",
-                    color: tab === role ? "#185B37" : "#74716B",
+                    color: tab === role ? "#5980a6" : "#74716B",
                     boxShadow: tab === role ? "0 1px 4px rgba(0,0,0,0.08)" : "none"
                   }}
                 >
@@ -221,7 +221,7 @@ export default function LoginPage() {
                 className="btn-masuk"
                 style={{
                   width: "100%", padding: 14, border: "none", borderRadius: 10,
-                  background: "#185B37", color: "#fff", fontSize: 15, fontWeight: 700,
+                  background: "#5980a6", color: "#fff", fontSize: 15, fontWeight: 700,
                   fontFamily: "inherit", cursor: "pointer",
                   boxShadow: "0 8px 20px -6px rgba(24,91,55,0.5)",
                   marginTop: tab === "mahasiswa" ? 24 : 0
@@ -235,7 +235,7 @@ export default function LoginPage() {
               Belum terdaftar?{" "}
               <Link
                 href={tab === "dosen" ? "/register?role=dosen" : "/register"}
-                style={{ color: "#185B37", fontWeight: 600, textDecoration: "none" }}
+                style={{ color: "#5980a6", fontWeight: 600, textDecoration: "none" }}
               >
                 Daftar di sini
               </Link>

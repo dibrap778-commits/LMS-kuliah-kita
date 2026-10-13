@@ -181,8 +181,8 @@ export default function KelolaSoal({
                   key={opt}
                   style={{
                     fontSize: 13, padding: "4px 10px", borderRadius: 6,
-                    color: s.jawaban_benar === opt ? "#177a4d" : "#65635d",
-                    background: s.jawaban_benar === opt ? "#eafaf1" : "transparent",
+                    color: s.jawaban_benar === opt ? "#416180" : "#65635d",
+                    background: s.jawaban_benar === opt ? "#eef6ff" : "transparent",
                     fontWeight: s.jawaban_benar === opt ? 600 : 400,
                   }}
                 >
@@ -236,8 +236,8 @@ export default function KelolaSoal({
                       style={{
                         display: "flex", alignItems: "center", gap: 8,
                         padding: 6, borderRadius: 9,
-                        border: isCorrect ? "1.5px solid #185B37" : "1.5px solid #DFDEDA",
-                        background: isCorrect ? "#eafaf1" : "#fff",
+                        border: isCorrect ? "1.5px solid #5980a6" : "1.5px solid #DFDEDA",
+                        background: isCorrect ? "#eef6ff" : "#fff",
                       }}
                     >
                       <span style={{ fontSize: 12, fontWeight: 700, color: "#65635d", width: 16, flexShrink: 0, textAlign: "center" }}>
@@ -255,7 +255,7 @@ export default function KelolaSoal({
                         style={{
                           flexShrink: 0, fontSize: 11, fontWeight: 700, padding: "6px 10px",
                           borderRadius: 7, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
-                          background: isCorrect ? "#185B37" : "#fff",
+                          background: isCorrect ? "#5980a6" : "#fff",
                           color: isCorrect ? "#fff" : "#65635d",
                           border: isCorrect ? "none" : "1px solid rgba(0,0,0,.15)",
                         }}

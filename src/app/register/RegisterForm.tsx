@@ -57,9 +57,9 @@ export default function RegisterForm() {
           .hero-headline { font-size: 24px !important; }
           .form-col { padding: 28px 20px 48px !important; }
         }
-        input:focus { outline: none; border-color: #185B37 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
-        select:focus { outline: none; border-color: #185B37 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
-        .btn-daftar:hover { background: #004824 !important; }
+        input:focus { outline: none; border-color: #5980a6 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
+        select:focus { outline: none; border-color: #5980a6 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
+        .btn-daftar:hover { background: #2c455d !important; }
         .btn-daftar:disabled { opacity: 0.6; cursor: not-allowed; }
         .mk-scroll::-webkit-scrollbar { width: 4px; }
         .mk-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 2px; }
@@ -70,7 +70,7 @@ export default function RegisterForm() {
         <div className="hero-outer" style={{ padding: 16, minHeight: "100vh" }}>
           <div className="hero-card" style={{
             position: "relative", height: "100%", minHeight: 560,
-            borderRadius: 24, overflow: "hidden", background: "#002310"
+            borderRadius: 24, overflow: "hidden", background: "#1d2d3d"
           }}>
             <img
               src="/hero-student.webp"
@@ -149,7 +149,7 @@ export default function RegisterForm() {
                     fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none",
                     fontFamily: "inherit", transition: "all 0.15s",
                     background: isDosen === dosen ? "#fff" : "transparent",
-                    color: isDosen === dosen ? "#185B37" : "#74716B",
+                    color: isDosen === dosen ? "#5980a6" : "#74716B",
                     boxShadow: isDosen === dosen ? "0 1px 4px rgba(0,0,0,0.08)" : "none"
                   }}
                 >
@@ -264,7 +264,7 @@ export default function RegisterForm() {
                 className="btn-daftar"
                 style={{
                   width: "100%", padding: 14, border: "none", borderRadius: 10,
-                  background: "#185B37", color: "#fff", fontSize: 15, fontWeight: 700,
+                  background: "#5980a6", color: "#fff", fontSize: 15, fontWeight: 700,
                   fontFamily: "inherit", cursor: "pointer",
                   boxShadow: "0 8px 20px -6px rgba(24,91,55,0.5)",
                   marginTop: 24
@@ -276,7 +276,7 @@ export default function RegisterForm() {
 
             <div style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "#65635D" }}>
               Sudah punya akun?{" "}
-              <Link href="/login" style={{ color: "#185B37", fontWeight: 600, textDecoration: "none" }}>
+              <Link href="/login" style={{ color: "#5980a6", fontWeight: 600, textDecoration: "none" }}>
                 Masuk di sini
               </Link>
             </div>

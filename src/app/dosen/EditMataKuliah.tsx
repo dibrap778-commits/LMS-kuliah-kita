@@ -42,15 +42,11 @@ export default function EditMataKuliah({
           setOpen(true);
         }}
         aria-label="Edit mata kuliah"
-        style={{
-          position: "absolute", top: 14, right: 14, zIndex: 2,
-          width: 28, height: 28, borderRadius: 7,
-          background: "rgba(255,255,255,0.95)", border: "1px solid rgba(0,0,0,.12)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 13, cursor: "pointer"
-        }}
+        className="btn btn-secondary btn-icon"
       >
-        ✏️
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
       </button>
 
       {open && (
@@ -106,7 +102,7 @@ export default function EditMataKuliah({
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSave(); }}
                 disabled={saving || !kode.trim() || !nama.trim() || !semester}
                 style={{
-                  padding: "8px 18px", borderRadius: 8, background: "#185B37",
+                  padding: "8px 18px", borderRadius: 8, background: "#5980a6",
                   color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
                   opacity: saving || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1

@@ -8,8 +8,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Kuliah Kita",
-  description: "Platform perkuliahan sederhana",
+  title: "Akademi Bisnis dan Keuangan Primaniyarta",
+  description: "Platform Perkuliahan Perbankan dan Keuangan Digital",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

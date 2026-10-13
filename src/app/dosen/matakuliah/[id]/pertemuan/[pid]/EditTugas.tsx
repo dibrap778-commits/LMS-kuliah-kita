@@ -56,7 +56,7 @@ export default function EditTugas({
     <div style={{
       marginTop: 10, padding: "16px 18px",
       background: "#f9f8f5", borderRadius: 10,
-      border: "1.5px solid #185B37"
+      border: "1.5px solid #5980a6"
     }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1a1a", marginBottom: 12 }}>Edit Tugas</div>
       {error && (
@@ -83,7 +83,7 @@ export default function EditTugas({
       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
         <button onClick={handleSave} disabled={saving || !judul.trim() || !deadline}
           style={{
-            padding: "6px 16px", borderRadius: 7, background: "#185B37",
+            padding: "6px 16px", borderRadius: 7, background: "#5980a6",
             color: "#fff", border: "none", fontSize: 12, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving || !judul.trim() || !deadline ? 0.6 : 1

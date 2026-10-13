@@ -61,8 +61,8 @@ export default function KuisAttempt({
           style={{
             fontSize: 18, fontWeight: 700, fontFamily: "monospace",
             padding: "4px 14px", borderRadius: 8,
-            background: isLow ? "#fef2f2" : "#eafaf1",
-            color: isLow ? "#b91c1c" : "#177a4d",
+            background: isLow ? "#fef2f2" : "#eef6ff",
+            color: isLow ? "#b91c1c" : "#416180",
           }}
         >
           {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
@@ -80,8 +80,8 @@ export default function KuisAttempt({
                   style={{
                     display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer",
                     padding: "8px 12px", borderRadius: 8,
-                    border: jawaban[s.id] === opt ? "1.5px solid #185B37" : "1px solid rgba(0,0,0,.12)",
-                    background: jawaban[s.id] === opt ? "#eafaf1" : "#fff",
+                    border: jawaban[s.id] === opt ? "1.5px solid #5980a6" : "1px solid rgba(0,0,0,.12)",
+                    background: jawaban[s.id] === opt ? "#eef6ff" : "#fff",
                   }}
                 >
                   <input
@@ -89,7 +89,7 @@ export default function KuisAttempt({
                     name={`soal-${s.id}`}
                     checked={jawaban[s.id] === opt}
                     onChange={() => setJawaban((prev) => ({ ...prev, [s.id]: opt }))}
-                    style={{ accentColor: "#185B37" }}
+                    style={{ accentColor: "#5980a6" }}
                   />
                   <span style={{ textTransform: "uppercase", fontWeight: 600, color: "#65635d", width: 16 }}>
                     {opt}
@@ -107,7 +107,7 @@ export default function KuisAttempt({
         disabled={submitting}
         style={{
           width: "100%", marginTop: 20, padding: 14, borderRadius: 10,
-          background: "#185B37", color: "#fff", border: "none",
+          background: "#5980a6", color: "#fff", border: "none",
           fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer",
           opacity: submitting ? 0.6 : 1,
         }}
