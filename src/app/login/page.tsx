@@ -51,12 +51,11 @@ export default function LoginPage() {
         .lp-badge { display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #c7ddfb; border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 20px; }
         .lp-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #2563eb; }
 
-        .lp-hero h1 { font-size: clamp(40px, 4.4vw, 64px); line-height: 1.1; font-weight: 750; color: #0b1748; margin: 0 0 20px; letter-spacing: -0.01em; }
-        .lp-hero-lead { font-size: 19px; line-height: 1.55; color: #586b88; max-width: 560px; margin: 0 0 32px; }
+        .lp-hero-lead { font-size: 18px; line-height: 1.55; color: #586b88; max-width: 560px; margin: 24px 0 28px; }
 
-        .lp-hero-photo { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 16/10; margin-bottom: 32px; border: 1px solid #c7ddfb; }
-        .lp-hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
-        .lp-hero-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,0) 72%, rgba(255,255,255,.55) 100%), linear-gradient(0deg, rgba(255,255,255,0) 85%, rgba(255,255,255,.3) 100%); }
+        .lp-hero-photo { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid #c7ddfb; }
+        .lp-hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
+        .lp-hero-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, rgba(255,255,255,0) 88%, rgba(255,255,255,.35) 100%); }
 
         .lp-features { display: flex; gap: 28px; flex-wrap: wrap; }
         .lp-feature { display: flex; align-items: center; gap: 10px; }
@@ -104,14 +103,12 @@ export default function LoginPage() {
           .lp-header-inner { padding: 18px 0; }
           .lp-brand-name { font-size: 13px; max-width: 200px; }
           .lp-badge { display: none; }
-          .lp-hero h1 { font-size: 32px; }
-          .lp-hero-lead { font-size: 16px; }
+          .lp-hero-lead { font-size: 16px; margin-top: 16px; }
           .lp-main { padding-top: 28px; gap: 32px; }
           .lp-card { padding: 24px; border-radius: 20px; }
           .lp-roleswitch button { padding: 11px 0; font-size: 13.5px; }
           .lp-field input { min-height: 52px; font-size: 16px; }
           .lp-submit { min-height: 52px; }
-          .lp-hero-photo { aspect-ratio: 4/3; }
           .lp-footer { flex-direction: column; align-items: flex-start; }
         }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -136,15 +133,18 @@ export default function LoginPage() {
           <main className="lp-main">
             <section className="lp-hero">
               <div className="lp-badge"><span className="lp-badge-dot" />SATU PORTAL, SEMUA AKTIVITAS AKADEMIK</div>
-              <h1>Langkah besar<br />dimulai dari sini.</h1>
-              <p className="lp-hero-lead">Terhubung dengan pembelajaran dan layanan akademik dalam satu tempat.</p>
+              <h1 style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap" }}>
+                Langkah besar dimulai dari sini.
+              </h1>
 
               <div className="lp-hero-photo">
                 <img
-                  src="/hero-mahasiswa-teknologi.jpg"
-                  alt="Mahasiswa menggunakan VR dan mahasiswi berhijab belajar teknologi di laboratorium komputer."
+                  src="/hero-mahasiswa-headline.jpg"
+                  alt="Langkah besar dimulai dari sini. Mahasiswa menggunakan VR dan mahasiswi berhijab belajar teknologi di laboratorium komputer."
                 />
               </div>
+
+              <p className="lp-hero-lead">Terhubung dengan pembelajaran dan layanan akademik dalam satu tempat.</p>
 
               <div className="lp-features">
                 <div className="lp-feature">
