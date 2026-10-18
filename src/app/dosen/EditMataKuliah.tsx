@@ -120,7 +120,7 @@ export default function EditMataKuliah({
                 disabled={saving || deleting || !kode.trim() || !nama.trim() || !semester}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "8px 18px", borderRadius: 8, background: "#5980a6",
+                  padding: "8px 18px", borderRadius: 8, background: "#2563eb",
                   color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
                   opacity: saving || deleting || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1

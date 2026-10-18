@@ -57,7 +57,7 @@ export default function EditPertemuan({
 
   return (
     <div style={{
-      background: "#fff", border: "1.5px solid #5980a6",
+      background: "#fff", border: "1.5px solid #2563eb",
       borderRadius: 12, padding: "20px 24px", marginTop: 12
     }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", marginBottom: 16 }}>
@@ -104,7 +104,7 @@ export default function EditPertemuan({
           disabled={saving || !judul.trim() || !tanggal}
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "8px 18px", borderRadius: 8, background: "#5980a6",
+            padding: "8px 18px", borderRadius: 8, background: "#2563eb",
             color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving || !judul.trim() || !tanggal ? 0.6 : 1

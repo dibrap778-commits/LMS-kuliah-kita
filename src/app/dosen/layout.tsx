@@ -11,7 +11,7 @@ export default async function DosenLayout({
   if (!session || session.role !== "dosen") redirect("/login");
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-bg)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--page-gradient)" }}>
       <Navbar nama={session.nama} role="dosen" />
       <main className="mx-auto w-full" style={{ maxWidth: 1160, padding: "48px 32px 80px" }}>{children}</main>
     </div>

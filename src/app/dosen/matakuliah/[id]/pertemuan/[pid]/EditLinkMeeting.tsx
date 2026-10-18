@@ -30,10 +30,10 @@ export default function EditLinkMeeting({
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "5px 12px", borderRadius: 7,
-          background: initialLink ? "#eef6ff" : "#fff",
-          border: `1px solid ${initialLink ? "#94bce3" : "rgba(0,0,0,.15)"}`,
+          background: initialLink ? "#eff6ff" : "#fff",
+          border: `1px solid ${initialLink ? "#93c5fd" : "rgba(0,0,0,.15)"}`,
           fontSize: 12, fontWeight: 500,
-          color: initialLink ? "#5980a6" : "#65635d",
+          color: initialLink ? "#2563eb" : "#65635d",
           cursor: "pointer", fontFamily: "inherit"
         }}
       >
@@ -46,7 +46,7 @@ export default function EditLinkMeeting({
     <div style={{
       marginTop: 8, padding: "14px 16px",
       background: "#f9f8f5", borderRadius: 10,
-      border: "1.5px solid #5980a6"
+      border: "1.5px solid #2563eb"
     }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1a1a", marginBottom: 10 }}>
         Link Zoom / Google Meet
@@ -73,7 +73,7 @@ export default function EditLinkMeeting({
         <button onClick={handleSave} disabled={saving}
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "6px 16px", borderRadius: 7, background: "#5980a6",
+            padding: "6px 16px", borderRadius: 7, background: "#2563eb",
             color: "#fff", border: "none", fontSize: 12, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving ? 0.6 : 1

@@ -89,7 +89,7 @@ export default function RekapNilai({
           onClick={exportCSV}
           style={{
             padding: "8px 16px", borderRadius: 8, border: "1px solid rgba(0,0,0,.15)",
-            background: "#597ea3", color: "#fff", fontSize: 13, fontWeight: 600,
+            background: "#1d4ed8", color: "#fff", fontSize: 13, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit"
           }}
         >
@@ -170,7 +170,7 @@ export default function RekapNilai({
                           title="Input manual (WA/luar LMS)"
                           style={{
                             width: 56, textAlign: "center", padding: "4px 6px",
-                            border: saving === `${row.id}-tugas` ? "1.5px solid #597ea3" : "1px solid rgba(0,0,0,.15)",
+                            border: saving === `${row.id}-tugas` ? "1.5px solid #1d4ed8" : "1px solid rgba(0,0,0,.15)",
                             borderRadius: 6, fontSize: 14, fontFamily: "inherit",
                             outline: "none", background: "#fffce8"
                           }}
@@ -188,7 +188,7 @@ export default function RekapNilai({
                           onBlur={(e) => handleBlur(row.id, field, e.target.value)}
                           style={{
                             width: 56, textAlign: "center", padding: "4px 6px",
-                            border: saving === `${row.id}-${field}` ? "1.5px solid #597ea3" : "1px solid rgba(0,0,0,.15)",
+                            border: saving === `${row.id}-${field}` ? "1.5px solid #1d4ed8" : "1px solid rgba(0,0,0,.15)",
                             borderRadius: 6, fontSize: 14, fontFamily: "inherit",
                             outline: "none"
                           }}
@@ -196,7 +196,7 @@ export default function RekapNilai({
                       </td>
                     ))}
                     <td style={{ padding: "10px 14px", textAlign: "center", fontWeight: 700,
-                      color: na === null ? "rgba(0,0,0,.35)" : na >= 60 ? "#416180" : "#c23b3b"
+                      color: na === null ? "rgba(0,0,0,.35)" : na >= 60 ? "#1e40af" : "#c23b3b"
                     }}>
                       {na !== null ? na : "—"}
                     </td>

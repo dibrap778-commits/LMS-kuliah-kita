@@ -101,7 +101,7 @@ export default async function KuisPage({
           <p className="text-sm text-gray-500 mb-2">Anda sudah menyelesaikan kuis ini.</p>
           <div
             className="text-4xl font-bold"
-            style={{ color: (skor ?? 0) >= 60 ? "#416180" : "#c23b3b" }}
+            style={{ color: (skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b" }}
           >
             {skor}
           </div>

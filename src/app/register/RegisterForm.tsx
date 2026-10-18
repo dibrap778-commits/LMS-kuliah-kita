@@ -11,6 +11,7 @@ export default function RegisterForm() {
   const [isDosen, setIsDosen] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("role") === "dosen") setIsDosen(true);
@@ -34,256 +35,254 @@ export default function RegisterForm() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif; background: #F9F8F5; }
-        .register-root {
-          min-height: 100vh;
-          display: grid;
-          grid-template-columns: 1.1fr 1fr;
-          background: #F9F8F5;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #ffffff; color: #334155; }
+
+        .lp-page { min-height: 100svh; background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%); display: flex; flex-direction: column; }
+        .lp-shell { max-width: 1440px; margin: 0 auto; padding: 0 56px; width: 100%; }
+
+        .lp-header { border-bottom: 1px solid #dbeafe; }
+        .lp-header-inner { display: flex; align-items: center; padding: 24px 0; }
+        .lp-brand { display: flex; align-items: center; gap: 14px; }
+        .lp-brand-mark { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; background: #fff; border: 1px solid #c7ddfb; display: flex; align-items: center; justify-content: center; padding: 4px; }
+        .lp-brand-mark img { width: 100%; height: 100%; object-fit: contain; }
+        .lp-brand-name { font-weight: 800; font-size: 15.5px; color: #0b1748; letter-spacing: 0.01em; line-height: 1.25; max-width: 320px; }
+        .lp-brand-sub { font-size: 13px; color: #586b88; margin-top: 1px; }
+
+        .lp-main { flex: 1; display: grid; grid-template-columns: 1.15fr 1fr; gap: 56px; align-items: start; padding: 64px 0 56px; }
+        .lp-main > * { min-width: 0; }
+
+        .lp-badge { display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #c7ddfb; border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 20px; }
+        .lp-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #2563eb; }
+
+        .lp-hero-lead { font-size: 18px; line-height: 1.55; color: #586b88; max-width: 560px; margin: 24px 0 28px; }
+
+        .lp-hero-photo { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid #c7ddfb; }
+        .lp-hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block; }
+        .lp-hero-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, rgba(255,255,255,0) 88%, rgba(255,255,255,.35) 100%); }
+
+        .lp-features { display: flex; gap: 28px; flex-wrap: wrap; }
+        .lp-feature { display: flex; align-items: center; gap: 10px; }
+        .lp-feature-icon { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background: #eff6ff; border: 1px solid #c7ddfb; display: flex; align-items: center; justify-content: center; color: #2563eb; }
+        .lp-feature span { font-size: 14.5px; font-weight: 500; color: #0b1748; }
+
+        .lp-card { background: #fff; border: 1px solid #c7ddfb; border-radius: 28px; box-shadow: 0 12px 40px rgb(37 99 235 / 8%); padding: 44px; max-width: 600px; }
+        .lp-card h2 { font-size: 30px; font-weight: 750; color: #0b1748; margin: 0 0 6px; }
+        .lp-card-lead { font-size: 15px; color: #586b88; margin: 0 0 28px; }
+
+        .lp-roleswitch { display: flex; background: #eff6ff; border: 1px solid #c7ddfb; border-radius: 14px; padding: 4px; margin-bottom: 24px; gap: 4px; }
+        .lp-roleswitch button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; background: transparent; cursor: pointer; padding: 12px 0; border-radius: 10px; font-size: 14.5px; font-weight: 600; color: #0b1748; font-family: inherit; transition: background .18s, color .18s; }
+        .lp-roleswitch button[aria-pressed="true"] { background: #2563eb; color: #fff; }
+
+        .lp-field { margin-bottom: 20px; }
+        .lp-field label { display: block; font-size: 13.5px; font-weight: 600; color: #0b1748; margin-bottom: 8px; }
+        .lp-field .control { position: relative; }
+        .lp-field .control svg.leading { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #586b88; pointer-events: none; }
+        .lp-field input { width: 100%; min-height: 56px; border-radius: 14px; border: 1.5px solid #c7ddfb; background: #f5f9ff; padding: 0 16px 0 46px; font-size: 16px; font-family: inherit; color: #0b1748; }
+        .lp-field input::placeholder { color: #586b88; opacity: .85; }
+        .lp-field input:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; border-color: #2563eb; }
+        .lp-field.password input { padding-right: 48px; }
+        .lp-eye-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background: transparent; cursor: pointer; color: #586b88; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .lp-eye-toggle:hover { background: #eff6ff; color: #2563eb; }
+
+        .lp-submit { width: 100%; min-height: 56px; border: none; border-radius: 14px; background: #2563eb; color: #fff; font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background .15s; margin-top: 4px; }
+        .lp-submit:hover { background: #1d4ed8; }
+        .lp-submit:active { background: #1e40af; }
+        .lp-submit:disabled { opacity: .7; cursor: default; }
+
+        .lp-divider-row { border-top: 1px solid #dbeafe; margin-top: 28px; padding-top: 20px; text-align: center; font-size: 13.5px; color: #586b88; }
+        .lp-divider-row a { color: #2563eb; text-decoration: none; font-weight: 600; }
+        .lp-divider-row a:hover { color: #1d4ed8; text-decoration: underline; }
+
+        .lp-footer { border-top: 1px solid #dbeafe; padding: 22px 0 32px; display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; color: #586b88; flex-wrap: wrap; gap: 10px; }
+
+        @media (max-width: 1023px) {
+          .lp-shell { padding: 0 28px; }
+          .lp-main { grid-template-columns: 1fr; padding-top: 40px; }
+          .lp-card { max-width: 560px; margin: 0 auto; }
+          .lp-hero { max-width: 640px; margin: 0 auto; }
         }
-        @media (max-width: 859px) {
-          .register-root { grid-template-columns: 1fr; }
-          .hero-outer { min-height: auto !important; }
-          .hero-card { min-height: 340px !important; }
-          .form-col { align-items: flex-start !important; padding: 40px 32px 56px !important; }
-          .hero-headline { font-size: 28px !important; }
+        @media (max-width: 767px) {
+          .lp-shell { padding: 0 18px; }
+          .lp-header-inner { padding: 18px 0; }
+          .lp-brand-name { font-size: 13px; max-width: 200px; }
+          .lp-badge { display: none; }
+          .lp-main { padding-top: 28px; gap: 32px; }
+          .lp-card { padding: 24px; border-radius: 20px; }
+          .lp-roleswitch button { padding: 11px 0; font-size: 13.5px; }
+          .lp-field input { min-height: 52px; font-size: 16px; }
+          .lp-submit { min-height: 52px; }
+          .lp-footer { flex-direction: column; align-items: flex-start; }
         }
-        @media (max-width: 479px) {
-          .hero-outer { padding: 10px !important; }
-          .hero-card { min-height: 280px !important; border-radius: 18px !important; }
-          .hero-inset { left: 20px !important; right: 20px !important; }
-          .hero-brand { top: 20px !important; left: 20px !important; right: 20px !important; }
-          .hero-headline { font-size: 24px !important; }
-          .form-col { padding: 28px 20px 48px !important; }
-        }
-        input:focus { outline: none; border-color: #5980a6 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
-        select:focus { outline: none; border-color: #5980a6 !important; box-shadow: 0 0 0 3px rgba(24,91,55,0.15); }
-        .btn-daftar:hover { background: #2c455d !important; }
-        .btn-daftar:disabled { opacity: 0.6; cursor: not-allowed; }
-        .mk-scroll::-webkit-scrollbar { width: 4px; }
-        .mk-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 2px; }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
       `}</style>
 
-      <div className="register-root">
-        {/* Hero kiri */}
-        <div className="hero-outer" style={{ padding: 16, minHeight: "100vh" }}>
-          <div className="hero-card" style={{
-            position: "relative", height: "100%", minHeight: 560,
-            borderRadius: 24, overflow: "hidden", background: "#1d2d3d"
-          }}>
-            <img
-              src="/hero-student.webp"
-              alt="Kampus"
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-            />
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(180deg, rgba(0,30,12,0.55) 0%, transparent 28%, transparent 45%, rgba(0,22,8,0.94) 100%)",
-              pointerEvents: "none"
-            }} />
-
-            {/* Brand atas */}
-            <div className="hero-brand" style={{
-              position: "absolute", top: 40, left: 40, right: 40,
-              display: "flex", alignItems: "center", gap: 14, pointerEvents: "none"
-            }}>
-              <div style={{
-                width: 50, height: 50, borderRadius: 10,
-                background: "#fff", padding: 4, flexShrink: 0,
-                display: "flex", alignItems: "center", justifyContent: "center"
-              }}>
-                <img src="/logo-primaniyarta.png" alt="ABK Primaniyarta" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: 260, color: "#fff" }}>
-                Platform Perkuliahan Perbankan dan Keuangan Digital
+      <div className="lp-page">
+        <div className="lp-shell">
+          <header className="lp-header">
+            <div className="lp-header-inner">
+              <div className="lp-brand">
+                <div className="lp-brand-mark">
+                  <img src="/logo-primaniyarta.png" alt="Logo Akademi Bisnis dan Keuangan Primaniyarta" />
+                </div>
+                <div>
+                  <div className="lp-brand-name">AKADEMI BISNIS DAN KEUANGAN PRIMANIYARTA</div>
+                  <div className="lp-brand-sub">Portal Akademik</div>
+                </div>
               </div>
             </div>
+          </header>
 
-            {/* Copy bawah */}
-            <div className="hero-inset" style={{
-              position: "absolute", left: 40, right: 40, bottom: 44, maxWidth: 480, pointerEvents: "none"
-            }}>
-              <div style={{
-                display: "inline-flex", padding: "6px 12px", borderRadius: 999,
-                background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)",
-                backdropFilter: "blur(10px)", fontSize: 12, fontWeight: 600,
-                letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 18, color: "#fff"
-              }}>Portal Akademik</div>
-              <div className="hero-headline" style={{
-                fontSize: 38, fontWeight: 800, lineHeight: 1.15,
-                letterSpacing: "-0.02em", marginBottom: 14, color: "#fff"
-              }}>Belajar tanpa batas,<br />di mana saja.</div>
-              <div style={{ fontSize: 16, lineHeight: 1.6, color: "#F4F2EA" }}>
-                Akses materi kuliah, tugas, dan absensi dalam satu platform yang mudah digunakan.
+          <main className="lp-main">
+            <section className="lp-hero">
+              <h1 style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap" }}>
+                Langkah besar dimulai dari sini.
+              </h1>
+
+              <div className="lp-hero-photo">
+                <img
+                  src="/hero-mahasiswa-headline.jpg"
+                  alt="Langkah besar dimulai dari sini. Mahasiswa menggunakan VR dan mahasiswi berhijab belajar teknologi di laboratorium komputer."
+                />
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Form kanan */}
-        <div className="form-col" style={{
-          display: "flex", alignItems: "center", justifyContent: "center", padding: 40
-        }}>
-          <div style={{ width: "100%", maxWidth: 400 }}>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 26, fontWeight: 800, color: "#252117", letterSpacing: "-0.01em" }}>
-                Buat akun baru
+              <div className="lp-badge" style={{ marginTop: 24 }}><span className="lp-badge-dot" />SATU PORTAL, SEMUA AKTIVITAS AKADEMIK</div>
+              <p className="lp-hero-lead" style={{ marginTop: 14 }}>Terhubung dengan pembelajaran dan layanan akademik dalam satu tempat.</p>
+
+              <div className="lp-features">
+                <div className="lp-feature">
+                  <span className="lp-feature-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 10 12 5 2 10l10 5 10-5Z" /><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" /></svg>
+                  </span>
+                  <span>Pembelajaran</span>
+                </div>
+                <div className="lp-feature">
+                  <span className="lp-feature-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" /><path d="M14 2v6h6M9 13h6M9 17h6" /></svg>
+                  </span>
+                  <span>Layanan Akademik</span>
+                </div>
+                <div className="lp-feature">
+                  <span className="lp-feature-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 16v-5M12 8h.01" /></svg>
+                  </span>
+                  <span>Informasi Kampus</span>
+                </div>
               </div>
-              <div style={{ fontSize: 15, color: "#65635D", marginTop: 6 }}>
-                {isDosen ? "Registrasi akun dosen" : "Registrasi akun mahasiswa"}
+            </section>
+
+            <section className="lp-card" aria-labelledby="rg-h2">
+              <h2 id="rg-h2">Buat akun baru</h2>
+              <p className="lp-card-lead">
+                {isDosen ? "Registrasi akun dosen." : "Registrasi akun mahasiswa."}
+              </p>
+
+              <div className="lp-roleswitch" role="radiogroup" aria-label="Daftar sebagai">
+                {([false, true] as const).map((dosen) => (
+                  <button
+                    key={String(dosen)}
+                    type="button"
+                    role="radio"
+                    aria-pressed={isDosen === dosen}
+                    aria-checked={isDosen === dosen}
+                    onClick={() => { setIsDosen(dosen); setError(""); }}
+                  >
+                    {dosen ? "Dosen" : "Mahasiswa"}
+                  </button>
+                ))}
               </div>
-            </div>
 
-            {/* Tab toggle */}
-            <div style={{
-              display: "flex", background: "#F0EEEB", borderRadius: 12,
-              padding: 4, marginBottom: 24
-            }}>
-              {([false, true] as const).map((dosen) => (
-                <button
-                  key={String(dosen)}
-                  onClick={() => { setIsDosen(dosen); setError(""); }}
-                  style={{
-                    flex: 1, textAlign: "center", padding: "10px 0", borderRadius: 9,
-                    fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none",
-                    fontFamily: "inherit", transition: "all 0.15s",
-                    background: isDosen === dosen ? "#fff" : "transparent",
-                    color: isDosen === dosen ? "#5980a6" : "#74716B",
-                    boxShadow: isDosen === dosen ? "0 1px 4px rgba(0,0,0,0.08)" : "none"
-                  }}
-                >
-                  {dosen ? "Dosen" : "Mahasiswa"}
-                </button>
-              ))}
-            </div>
+              {error && (
+                <div style={{
+                  marginBottom: 16, padding: "10px 14px", borderRadius: 8,
+                  background: "#FEF2F2", border: "1px solid #FECACA",
+                  color: "#B91C1C", fontSize: 14
+                }}>{error}</div>
+              )}
 
-            {error && (
-              <div style={{
-                marginBottom: 16, padding: "10px 14px", borderRadius: 8,
-                background: "#FEF2F2", border: "1px solid #FECACA",
-                color: "#B91C1C", fontSize: 14
-              }}>{error}</div>
-            )}
-
-            <form action={handleSubmit}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <form action={handleSubmit}>
                 {isDosen ? (
                   <>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                        Nama Lengkap
-                      </label>
-                      <input
-                        name="nama"
-                        type="text"
-                        required
-                        placeholder="Nama sesuai identitas"
-                        style={{
-                          width: "100%", padding: "13px 16px", borderRadius: 10,
-                          border: "1.5px solid #DFDEDA", fontSize: 15,
-                          fontFamily: "inherit", background: "#fff", display: "block"
-                        }}
-                      />
+                    <div className="lp-field">
+                      <label htmlFor="rg-nama">Nama Lengkap</label>
+                      <div className="control">
+                        <svg className="leading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6" /></svg>
+                        <input id="rg-nama" name="nama" type="text" required autoComplete="name" placeholder="Nama sesuai identitas" />
+                      </div>
                     </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                        Email
-                      </label>
-                      <input
-                        name="email"
-                        type="email"
-                        required
-                        placeholder="dosen@email.com"
-                        style={{
-                          width: "100%", padding: "13px 16px", borderRadius: 10,
-                          border: "1.5px solid #DFDEDA", fontSize: 15,
-                          fontFamily: "inherit", background: "#fff", display: "block"
-                        }}
-                      />
+                    <div className="lp-field">
+                      <label htmlFor="rg-email">Email</label>
+                      <div className="control">
+                        <svg className="leading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16v12H4z" /><path d="m4 7 8 6 8-6" /></svg>
+                        <input id="rg-email" name="email" type="email" required autoComplete="username" placeholder="dosen@email.com" />
+                      </div>
                     </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                        Password
-                      </label>
-                      <input
-                        name="password"
-                        type="password"
-                        required
-                        minLength={6}
-                        placeholder="Minimal 6 karakter"
-                        style={{
-                          width: "100%", padding: "13px 16px", borderRadius: 10,
-                          border: "1.5px solid #DFDEDA", fontSize: 15,
-                          fontFamily: "inherit", background: "#fff", display: "block"
-                        }}
-                      />
+                    <div className="lp-field password">
+                      <label htmlFor="rg-password">Password</label>
+                      <div className="control">
+                        <svg className="leading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="11" width="16" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+                        <input
+                          id="rg-password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          required
+                          minLength={6}
+                          autoComplete="new-password"
+                          placeholder="Minimal 6 karakter"
+                        />
+                        <button
+                          type="button"
+                          className="lp-eye-toggle"
+                          aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                          onClick={() => setShowPassword((v) => !v)}
+                        >
+                          {showPassword ? (
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.24 4.24M9.88 5.1A10.6 10.6 0 0 1 12 5c7 0 10.5 7 10.5 7a13.2 13.2 0 0 1-3.17 4.1M6.6 6.6C3.9 8.3 1.5 12 1.5 12s3.5 7 10.5 7a10.6 10.6 0 0 0 4.33-.9" /></svg>
+                          ) : (
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                        NIM
-                      </label>
-                      <input
-                        name="nim"
-                        type="text"
-                        required
-                        placeholder="Nomor Induk Mahasiswa"
-                        style={{
-                          width: "100%", padding: "13px 16px", borderRadius: 10,
-                          border: "1.5px solid #DFDEDA", fontSize: 15,
-                          fontFamily: "inherit", background: "#fff", display: "block"
-                        }}
-                      />
+                    <div className="lp-field">
+                      <label htmlFor="rg-nim">NIM</label>
+                      <div className="control">
+                        <svg className="leading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 9h10M7 13h6" /></svg>
+                        <input id="rg-nim" name="nim" type="text" required placeholder="Nomor Induk Mahasiswa" />
+                      </div>
                     </div>
-                    <div>
-                      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#3E3A2F", marginBottom: 8 }}>
-                        Nama Lengkap
-                      </label>
-                      <input
-                        name="nama"
-                        type="text"
-                        required
-                        placeholder="Nama sesuai identitas"
-                        style={{
-                          width: "100%", padding: "13px 16px", borderRadius: 10,
-                          border: "1.5px solid #DFDEDA", fontSize: 15,
-                          fontFamily: "inherit", background: "#fff", display: "block"
-                        }}
-                      />
+                    <div className="lp-field">
+                      <label htmlFor="rg-nama-mhs">Nama Lengkap</label>
+                      <div className="control">
+                        <svg className="leading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6" /></svg>
+                        <input id="rg-nama-mhs" name="nama" type="text" required autoComplete="name" placeholder="Nama sesuai identitas" />
+                      </div>
                     </div>
                   </>
                 )}
+
+                <button type="submit" disabled={loading} className="lp-submit">
+                  {loading && <Spinner light />}
+                  {loading ? "Memproses..." : "Daftar"}
+                  {!loading && (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  )}
+                </button>
+              </form>
+
+              <div className="lp-divider-row">
+                Sudah punya akun? <Link href="/login">Masuk di sini</Link>
               </div>
+            </section>
+          </main>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-daftar"
-                style={{
-                  width: "100%", padding: 14, border: "none", borderRadius: 10,
-                  background: "#5980a6", color: "#fff", fontSize: 15, fontWeight: 700,
-                  fontFamily: "inherit", cursor: "pointer",
-                  boxShadow: "0 8px 20px -6px rgba(24,91,55,0.5)",
-                  marginTop: 24,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10
-                }}
-              >
-                {loading && <Spinner light />}
-                {loading ? "Memproses..." : "Daftar"}
-              </button>
-            </form>
-
-            <div style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "#65635D" }}>
-              Sudah punya akun?{" "}
-              <Link href="/login" style={{ color: "#5980a6", fontWeight: 600, textDecoration: "none" }}>
-                Masuk di sini
-              </Link>
-            </div>
-          </div>
+          <footer className="lp-footer">
+            <span>&copy; {new Date().getFullYear()} Akademi Bisnis dan Keuangan Primaniyarta</span>
+          </footer>
         </div>
       </div>
     </>

@@ -111,7 +111,7 @@ export default async function MahasiswaPertemuanDetail({
             style={{
               display: "inline-flex", alignItems: "center", gap: 7,
               marginTop: 12, padding: "8px 16px", borderRadius: 8,
-              background: "#5980a6", color: "#fff",
+              background: "#2563eb", color: "#fff",
               fontSize: 13, fontWeight: 600, textDecoration: "none"
             }}
           >
@@ -210,8 +210,8 @@ export default async function MahasiswaPertemuanDetail({
                     <span
                       className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{
-                        background: (attempt!.skor ?? 0) >= 60 ? "#d6ebff" : "#fde8e8",
-                        color: (attempt!.skor ?? 0) >= 60 ? "#416180" : "#c23b3b",
+                        background: (attempt!.skor ?? 0) >= 60 ? "#dbeafe" : "#fde8e8",
+                        color: (attempt!.skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b",
                       }}
                     >
                       Selesai · Nilai {attempt!.skor}
@@ -310,7 +310,7 @@ export default async function MahasiswaPertemuanDetail({
                             <span style={{ fontSize: 13, fontWeight: 600, color: "#3E3A2F" }}>Nilai dari Dosen</span>
                             <span style={{
                               fontSize: 20, fontWeight: 800,
-                              color: sub.nilai >= 60 ? "#416180" : "#c23b3b"
+                              color: sub.nilai >= 60 ? "#1e40af" : "#c23b3b"
                             }}>
                               {sub.nilai}
                             </span>

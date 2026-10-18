@@ -38,8 +38,8 @@ export default function BeriNilai({
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {currentNilai !== null && (
           <span style={{
-            fontSize: 12, fontWeight: 700, color: currentNilai >= 60 ? "#416180" : "#c23b3b",
-            background: currentNilai >= 60 ? "#d6ebff" : "#fee2e2",
+            fontSize: 12, fontWeight: 700, color: currentNilai >= 60 ? "#1e40af" : "#c23b3b",
+            background: currentNilai >= 60 ? "#dbeafe" : "#fee2e2",
             padding: "2px 8px", borderRadius: 999
           }}>
             {currentNilai}
@@ -48,7 +48,7 @@ export default function BeriNilai({
         <button
           onClick={() => setOpen(true)}
           style={{
-            fontSize: 12, color: "#5980a6", border: "1px solid #5980a6",
+            fontSize: 12, color: "#2563eb", border: "1px solid #2563eb",
             borderRadius: 6, padding: "2px 10px", background: "none",
             cursor: "pointer", fontFamily: "inherit", fontWeight: 600
           }}
@@ -106,7 +106,7 @@ export default function BeriNilai({
           disabled={saving || nilai === ""}
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "6px 16px", borderRadius: 7, background: "#5980a6",
+            padding: "6px 16px", borderRadius: 7, background: "#2563eb",
             color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit", opacity: saving || nilai === "" ? 0.6 : 1
           }}

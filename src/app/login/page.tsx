@@ -132,7 +132,6 @@ export default function LoginPage() {
 
           <main className="lp-main">
             <section className="lp-hero">
-              <div className="lp-badge"><span className="lp-badge-dot" />SATU PORTAL, SEMUA AKTIVITAS AKADEMIK</div>
               <h1 style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap" }}>
                 Langkah besar dimulai dari sini.
               </h1>
@@ -144,7 +143,8 @@ export default function LoginPage() {
                 />
               </div>
 
-              <p className="lp-hero-lead">Terhubung dengan pembelajaran dan layanan akademik dalam satu tempat.</p>
+              <div className="lp-badge" style={{ marginTop: 24 }}><span className="lp-badge-dot" />SATU PORTAL, SEMUA AKTIVITAS AKADEMIK</div>
+              <p className="lp-hero-lead" style={{ marginTop: 14 }}>Terhubung dengan pembelajaran dan layanan akademik dalam satu tempat.</p>
 
               <div className="lp-features">
                 <div className="lp-feature">

@@ -92,9 +92,9 @@ export default function KelolaMKList({
                 flexShrink: 0, padding: "6px 14px", borderRadius: 8,
                 fontSize: 13, fontWeight: 600, fontFamily: "inherit",
                 cursor: "pointer", whiteSpace: "nowrap",
-                background: isActive ? "#5980a6" : "#fff",
+                background: isActive ? "#2563eb" : "#fff",
                 color: isActive ? "#fff" : "#65635d",
-                border: isActive ? "1px solid #5980a6" : "1px solid rgba(0,0,0,.12)",
+                border: isActive ? "1px solid #2563eb" : "1px solid rgba(0,0,0,.12)",
               }}
             >
               {tab === "semua" ? "Semua" : `Semester ${tab}`}
@@ -147,7 +147,7 @@ export default function KelolaMKList({
                     fontSize: 13, fontWeight: 600, fontFamily: "inherit",
                     cursor: isLoading ? "default" : "pointer",
                     opacity: isLoading ? 0.6 : 1,
-                    background: isTaken ? "#fef2f2" : "#5980a6",
+                    background: isTaken ? "#fef2f2" : "#2563eb",
                     color: isTaken ? "#b91c1c" : "#fff",
                     border: isTaken ? "1px solid #fecaca" : "none",
                   }}

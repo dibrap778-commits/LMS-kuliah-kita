@@ -30,16 +30,17 @@ export default function Navbar({
           style={{ display: "flex", alignItems: "center", gap: 10, marginRight: "auto", textDecoration: "none" }}
         >
           <span style={{
-            width: 28, height: 28, flexShrink: 0, border: "1px solid var(--color-text)",
-            display: "grid", placeItems: "center", overflow: "hidden", background: "#fff",
+            width: 40, height: 40, flexShrink: 0, border: "1px solid var(--color-divider)",
+            borderRadius: 10, display: "grid", placeItems: "center", overflow: "hidden",
+            background: "#fff", padding: 4,
           }}>
             <img src="/logo-primaniyarta.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </span>
           <span style={{
-            font: "600 20px/1 var(--font-heading)", letterSpacing: ".02em",
-            textTransform: "uppercase", color: "var(--color-text)",
+            font: "800 15.5px/1.25 var(--font-heading)", letterSpacing: ".01em",
+            color: "var(--color-text)", maxWidth: 240,
           }}>
-            Akademi Bisnis dan Keuangan Primaniyarta
+            AKADEMI BISNIS DAN KEUANGAN PRIMANIYARTA
           </span>
         </Link>
 
