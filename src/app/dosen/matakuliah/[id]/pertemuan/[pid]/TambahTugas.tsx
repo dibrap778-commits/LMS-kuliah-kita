@@ -89,12 +89,12 @@ export default function TambahTugas({ pertemuanId }: { pertemuanId: string }) {
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">
-            File Soal <span className="text-gray-400 font-normal">(opsional, PDF/Word)</span>
+            File Soal <span className="text-gray-400 font-normal">(opsional, PDF/Word/PPT)</span>
           </label>
           <input
             name="soal_file"
             type="file"
-            accept=".pdf,.doc,.docx"
+            accept=".pdf,.doc,.docx,.ppt,.pptx"
             className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
           />
         </div>

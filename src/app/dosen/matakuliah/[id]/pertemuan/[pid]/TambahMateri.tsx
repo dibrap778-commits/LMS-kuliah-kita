@@ -108,7 +108,7 @@ export default function TambahMateri({ pertemuanId }: { pertemuanId: string }) {
           <input
             name="file"
             type="file"
-            accept=".doc,.docx,.pdf"
+            accept=".doc,.docx,.pdf,.ppt,.pptx"
             className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
           />
         ) : (

@@ -72,7 +72,7 @@ export default function SubmitTugas({
       <div className="flex items-center gap-2">
         <input
           type="file"
-          accept=".doc,.docx,.pdf,.zip,.rar,.txt"
+          accept=".doc,.docx,.pdf,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt"
           className="flex-1 text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
         />
         <button
