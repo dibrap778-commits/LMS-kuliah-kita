@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toggleAbsensi } from "@/lib/actions/pertemuan";
+import Spinner from "@/components/Spinner";
 
 export default function AbsensiToggle({
   pertemuanId,
@@ -29,13 +30,14 @@ export default function AbsensiToggle({
     <button
       onClick={toggle}
       disabled={loading}
-      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors disabled:opacity-50 ${
+      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors disabled:opacity-50 inline-flex items-center gap-2 ${
         buka
           ? "bg-red-100 text-red-700 hover:bg-red-200"
           : "bg-green-100 text-green-700 hover:bg-green-200"
       }`}
     >
-      {loading ? "..." : buka ? "Tutup Absensi" : "Buka Absensi"}
+      {loading && <Spinner size={12} />}
+      {buka ? "Tutup Absensi" : "Buka Absensi"}
     </button>
   );
 }

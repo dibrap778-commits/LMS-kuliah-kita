@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { loginDosen, loginMahasiswa } from "@/lib/actions/auth";
+import Spinner from "@/components/Spinner";
 
 export default function LoginPage() {
   const [tab, setTab] = useState<"mahasiswa" | "dosen">("mahasiswa");
@@ -224,9 +225,11 @@ export default function LoginPage() {
                   background: "#5980a6", color: "#fff", fontSize: 15, fontWeight: 700,
                   fontFamily: "inherit", cursor: "pointer",
                   boxShadow: "0 8px 20px -6px rgba(24,91,55,0.5)",
-                  marginTop: tab === "mahasiswa" ? 24 : 0
+                  marginTop: tab === "mahasiswa" ? 24 : 0,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10
                 }}
               >
+                {loading && <Spinner light />}
                 {loading ? "Memproses..." : "Masuk"}
               </button>
             </form>

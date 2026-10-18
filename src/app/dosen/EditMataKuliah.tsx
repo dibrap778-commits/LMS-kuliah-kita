@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { editMataKuliah, deleteMataKuliah } from "@/lib/actions/matakuliah";
+import Spinner from "@/components/Spinner";
 
 export default function EditMataKuliah({
   id, initialKode, initialNama, initialDeskripsi, initialSemester,
@@ -118,12 +119,14 @@ export default function EditMataKuliah({
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSave(); }}
                 disabled={saving || deleting || !kode.trim() || !nama.trim() || !semester}
                 style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
                   padding: "8px 18px", borderRadius: 8, background: "#5980a6",
                   color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
                   cursor: "pointer", fontFamily: "inherit",
                   opacity: saving || deleting || !kode.trim() || !nama.trim() || !semester ? 0.6 : 1
                 }}
               >
+                {saving && <Spinner light />}
                 {saving ? "Menyimpan..." : "Simpan"}
               </button>
               <button
@@ -141,6 +144,7 @@ export default function EditMataKuliah({
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(); }}
                 disabled={deleting}
                 style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
                   marginLeft: "auto", padding: "8px 16px", borderRadius: 8,
                   background: "#fef2f2", border: "1px solid #fecaca",
                   color: "#b91c1c", fontSize: 13, fontWeight: 600,
@@ -148,6 +152,7 @@ export default function EditMataKuliah({
                   opacity: deleting ? 0.6 : 1
                 }}
               >
+                {deleting && <Spinner />}
                 {deleting ? "Menghapus..." : "Hapus MK"}
               </button>
             </div>

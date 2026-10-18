@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { submitTugas } from "@/lib/actions/tugas";
+import Spinner from "@/components/Spinner";
 
 export default function SubmitTugas({
   tugasId,
@@ -77,8 +78,9 @@ export default function SubmitTugas({
         <button
           type="submit"
           disabled={uploading}
-          className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 shrink-0"
+          className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 shrink-0 inline-flex items-center gap-2"
         >
+          {uploading && <Spinner light />}
           {uploading ? "Mengirim..." : "Kirim"}
         </button>
       </div>

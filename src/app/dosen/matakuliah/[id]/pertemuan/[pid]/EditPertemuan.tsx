@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { editPertemuan } from "@/lib/actions/pertemuan";
+import Spinner from "@/components/Spinner";
 
 export default function EditPertemuan({
   pertemuanId,
@@ -102,12 +103,14 @@ export default function EditPertemuan({
           onClick={handleSave}
           disabled={saving || !judul.trim() || !tanggal}
           style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
             padding: "8px 18px", borderRadius: 8, background: "#5980a6",
             color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving || !judul.trim() || !tanggal ? 0.6 : 1
           }}
         >
+          {saving && <Spinner light />}
           {saving ? "Menyimpan..." : "Simpan"}
         </button>
         <button

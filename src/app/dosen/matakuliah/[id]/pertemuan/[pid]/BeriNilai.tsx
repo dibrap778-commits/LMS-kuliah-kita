@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { saveNilaiSubmission } from "@/lib/actions/nilai";
+import Spinner from "@/components/Spinner";
 
 export default function BeriNilai({
   submissionId,
@@ -104,11 +105,13 @@ export default function BeriNilai({
           onClick={handleSave}
           disabled={saving || nilai === ""}
           style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
             padding: "6px 16px", borderRadius: 7, background: "#5980a6",
             color: "#fff", border: "none", fontSize: 13, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit", opacity: saving || nilai === "" ? 0.6 : 1
           }}
         >
+          {saving && <Spinner light />}
           {saving ? "Menyimpan..." : "Simpan"}
         </button>
         <button

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { editTugas } from "@/lib/actions/tugas";
+import Spinner from "@/components/Spinner";
 
 function toDatetimeLocal(iso: string) {
   return iso.slice(0, 16);
@@ -83,11 +84,13 @@ export default function EditTugas({
       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
         <button onClick={handleSave} disabled={saving || !judul.trim() || !deadline}
           style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
             padding: "6px 16px", borderRadius: 7, background: "#5980a6",
             color: "#fff", border: "none", fontSize: 12, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving || !judul.trim() || !deadline ? 0.6 : 1
           }}>
+          {saving && <Spinner light size={12} />}
           {saving ? "Menyimpan..." : "Simpan"}
         </button>
         <button onClick={() => { setOpen(false); setError(""); }}

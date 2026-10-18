@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { submitAttempt } from "@/lib/actions/kuis";
+import Spinner from "@/components/Spinner";
 
 type Soal = {
   id: string; urutan: number; pertanyaan: string;
@@ -110,8 +111,10 @@ export default function KuisAttempt({
           background: "#5980a6", color: "#fff", border: "none",
           fontSize: 15, fontWeight: 700, fontFamily: "inherit", cursor: "pointer",
           opacity: submitting ? 0.6 : 1,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
         }}
       >
+        {submitting && <Spinner light />}
         {submitting ? "Mengirim..." : "Selesai & Kirim Jawaban"}
       </button>
     </div>

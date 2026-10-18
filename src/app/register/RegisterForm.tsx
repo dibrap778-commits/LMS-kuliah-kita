@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { registerMahasiswa, registerDosen } from "@/lib/actions/auth";
+import Spinner from "@/components/Spinner";
 
 export default function RegisterForm() {
   const searchParams = useSearchParams();
@@ -267,9 +268,11 @@ export default function RegisterForm() {
                   background: "#5980a6", color: "#fff", fontSize: 15, fontWeight: 700,
                   fontFamily: "inherit", cursor: "pointer",
                   boxShadow: "0 8px 20px -6px rgba(24,91,55,0.5)",
-                  marginTop: 24
+                  marginTop: 24,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10
                 }}
               >
+                {loading && <Spinner light />}
                 {loading ? "Memproses..." : "Daftar"}
               </button>
             </form>

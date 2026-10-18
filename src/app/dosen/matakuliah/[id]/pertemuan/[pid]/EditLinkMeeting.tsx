@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { saveLinkMeeting } from "@/lib/actions/pertemuan";
+import Spinner from "@/components/Spinner";
 
 export default function EditLinkMeeting({
   pertemuanId, mkId, initialLink,
@@ -71,11 +72,13 @@ export default function EditLinkMeeting({
       <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
         <button onClick={handleSave} disabled={saving}
           style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
             padding: "6px 16px", borderRadius: 7, background: "#5980a6",
             color: "#fff", border: "none", fontSize: 12, fontWeight: 600,
             cursor: "pointer", fontFamily: "inherit",
             opacity: saving ? 0.6 : 1
           }}>
+          {saving && <Spinner light size={12} />}
           {saving ? "Menyimpan..." : "Simpan"}
         </button>
         {initialLink && (
@@ -87,10 +90,12 @@ export default function EditLinkMeeting({
             setOpen(false);
           }} disabled={saving}
             style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
               padding: "6px 14px", borderRadius: 7, background: "#fef2f2",
               border: "1px solid #fecaca", fontSize: 12, color: "#b91c1c",
-              cursor: "pointer", fontFamily: "inherit"
+              cursor: "pointer", fontFamily: "inherit", opacity: saving ? 0.6 : 1
             }}>
+            {saving && <Spinner size={12} />}
             Hapus
           </button>
         )}

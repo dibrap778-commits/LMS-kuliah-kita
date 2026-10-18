@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { enrollMataKuliah, unenrollMataKuliah } from "@/lib/actions/matakuliah";
+import Spinner from "@/components/Spinner";
 
 type MK = {
   id: string; kode: string; nama: string; deskripsi: string | null;
@@ -141,7 +142,8 @@ export default function KelolaMKList({
                   onClick={() => handleToggle(mk.id, isTaken)}
                   disabled={isLoading}
                   style={{
-                    flexShrink: 0, padding: "7px 16px", borderRadius: 8,
+                    flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 8,
+                    padding: "7px 16px", borderRadius: 8,
                     fontSize: 13, fontWeight: 600, fontFamily: "inherit",
                     cursor: isLoading ? "default" : "pointer",
                     opacity: isLoading ? 0.6 : 1,
@@ -150,7 +152,8 @@ export default function KelolaMKList({
                     border: isTaken ? "1px solid #fecaca" : "none",
                   }}
                 >
-                  {isLoading ? "..." : isTaken ? "Keluar" : "+ Daftar"}
+                  {isLoading && <Spinner light={!isTaken} size={12} />}
+                  {isTaken ? "Keluar" : "+ Daftar"}
                 </button>
               </div>
             );

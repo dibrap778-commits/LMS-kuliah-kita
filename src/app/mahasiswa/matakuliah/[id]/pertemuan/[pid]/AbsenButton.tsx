@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { isiAbsensi } from "@/lib/actions/absensi";
+import Spinner from "@/components/Spinner";
 
 export default function AbsenButton({ pertemuanId }: { pertemuanId: string }) {
   const [loading, setLoading] = useState(false);
@@ -44,8 +45,9 @@ export default function AbsenButton({ pertemuanId }: { pertemuanId: string }) {
       <button
         onClick={handleAbsen}
         disabled={loading}
-        className="w-full py-3 bg-emerald-700 text-white font-medium rounded-lg hover:bg-emerald-800 transition-colors disabled:opacity-50 text-sm"
+        className="w-full py-3 bg-emerald-700 text-white font-medium rounded-lg hover:bg-emerald-800 transition-colors disabled:opacity-50 text-sm inline-flex items-center justify-center gap-2"
       >
+        {loading && <Spinner light />}
         {loading ? "Memproses..." : "Hadir"}
       </button>
     </div>

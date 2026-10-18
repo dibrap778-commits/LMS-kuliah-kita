@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { editKuis, addSoal, editSoal, deleteSoal } from "@/lib/actions/kuis";
+import Spinner from "@/components/Spinner";
 
 type Soal = {
   id: string;
@@ -149,8 +150,9 @@ export default function KelolaSoal({
               <button
                 onClick={handleSaveHeader}
                 disabled={savingHeader}
-                className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 inline-flex items-center gap-2"
               >
+                {savingHeader && <Spinner light />}
                 {savingHeader ? "Menyimpan..." : "Simpan"}
               </button>
               <button
@@ -272,8 +274,9 @@ export default function KelolaSoal({
             <button
               onClick={handleSaveSoal}
               disabled={saving || !form.jawaban_benar}
-              className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50"
+              className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 inline-flex items-center gap-2"
             >
+              {saving && <Spinner light />}
               {saving ? "Menyimpan..." : "Simpan Soal"}
             </button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">

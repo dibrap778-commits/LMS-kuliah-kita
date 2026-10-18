@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createPertemuan } from "@/lib/actions/pertemuan";
+import Spinner from "@/components/Spinner";
 
 export default function TambahPertemuan({ mkId }: { mkId: string }) {
   const [open, setOpen] = useState(false);
@@ -75,8 +76,9 @@ export default function TambahPertemuan({ mkId }: { mkId: string }) {
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50"
+            className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 inline-flex items-center gap-2"
           >
+            {loading && <Spinner light />}
             {loading ? "Menyimpan..." : "Simpan"}
           </button>
           <button
