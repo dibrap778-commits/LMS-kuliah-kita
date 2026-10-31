@@ -36,6 +36,7 @@ export default async function KuisPage({
 
   let state: "not_started" | "in_progress" | "finished" = "not_started";
   let skor: number | null = null;
+  let pelanggaran = 0;
   let deadlineIso: string | null = null;
   let soalList: {
     id: string; urutan: number; pertanyaan: string;
@@ -46,6 +47,7 @@ export default async function KuisPage({
     if (attempt.waktu_selesai) {
       state = "finished";
       skor = attempt.skor;
+      pelanggaran = attempt.pelanggaran ?? 0;
     } else {
       const deadline = new Date(attempt.waktu_mulai).getTime() + kuis.durasi_menit * 60000;
       if (Date.now() >= deadline) {
@@ -88,6 +90,10 @@ export default async function KuisPage({
             Kuis ini punya batas waktu {kuis.durasi_menit} menit sejak Anda menekan mulai, dan hanya
             bisa dikerjakan satu kali. Pastikan Anda siap sebelum memulai.
           </p>
+          <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2.5 mb-4">
+            Jangan berpindah tab atau aplikasi lain selama mengerjakan — sistem akan mendeteksi dan
+            mencatatnya sebagai pelanggaran. Terlalu sering keluar tab, kuis akan otomatis dikirim.
+          </p>
           <MulaiKuis kuisId={kuisId} />
         </div>
       )}
@@ -105,6 +111,11 @@ export default async function KuisPage({
           >
             {skor}
           </div>
+          {pelanggaran > 0 && (
+            <p className="text-xs text-red-600 mt-3">
+              Terdeteksi {pelanggaran}x keluar dari tab kuis selama pengerjaan.
+            </p>
+          )}
         </div>
       )}
     </div>

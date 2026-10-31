@@ -151,7 +151,8 @@ export async function startAttempt(kuisId: string) {
 
 export async function submitAttempt(
   attemptId: string,
-  jawaban: { soal_id: string; jawaban_dipilih: string | null }[]
+  jawaban: { soal_id: string; jawaban_dipilih: string | null }[],
+  pelanggaran: number = 0
 ) {
   const session = await getSession();
   if (!session || session.role !== "mahasiswa") return { error: "Unauthorized" };
@@ -190,7 +191,7 @@ export async function submitAttempt(
   if (rows.length > 0) await supabase.from("kuis_jawaban").insert(rows);
   await supabase
     .from("kuis_attempt")
-    .update({ waktu_selesai: new Date().toISOString(), skor })
+    .update({ waktu_selesai: new Date().toISOString(), skor, pelanggaran })
     .eq("id", attemptId);
 
   return { success: true, skor };
