@@ -70,12 +70,33 @@ export default async function MataKuliahDetail({
         .not("nilai", "is", null)
     : { data: [] };
 
+  // Hitung rata-rata skor kuis yang sudah selesai (ikut digabung ke komponen Tugas)
+  const { data: kuisAll } = pertemuanIds.length > 0
+    ? await supabase.from("kuis").select("id").in("pertemuan_id", pertemuanIds)
+    : { data: [] };
+
+  const kuisIds = (kuisAll || []).map((k) => k.id);
+  const { data: kuisAttemptNilai } = kuisIds.length > 0
+    ? await supabase
+        .from("kuis_attempt")
+        .select("mahasiswa_id, skor")
+        .in("kuis_id", kuisIds)
+        .not("skor", "is", null)
+    : { data: [] };
+
   const tugasAkumulasi: Record<string, { sum: number; count: number }> = {};
   for (const s of submissionNilai || []) {
     if (s.nilai !== null) {
       if (!tugasAkumulasi[s.mahasiswa_id]) tugasAkumulasi[s.mahasiswa_id] = { sum: 0, count: 0 };
       tugasAkumulasi[s.mahasiswa_id].sum += s.nilai;
       tugasAkumulasi[s.mahasiswa_id].count += 1;
+    }
+  }
+  for (const k of kuisAttemptNilai || []) {
+    if (k.skor !== null) {
+      if (!tugasAkumulasi[k.mahasiswa_id]) tugasAkumulasi[k.mahasiswa_id] = { sum: 0, count: 0 };
+      tugasAkumulasi[k.mahasiswa_id].sum += k.skor;
+      tugasAkumulasi[k.mahasiswa_id].count += 1;
     }
   }
 

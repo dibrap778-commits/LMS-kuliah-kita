@@ -78,7 +78,25 @@ export default async function MahasiswaMKDetail({
         .not("nilai", "is", null)
     : { data: [] };
 
-  const tugasNilaiList = (mySubmissionNilai || []).map((s) => s.nilai).filter((v) => v !== null);
+  // Skor kuis yang sudah selesai ikut digabung ke komponen Tugas
+  const { data: kuisAll } = pertemuanIds.length > 0
+    ? await supabase.from("kuis").select("id").in("pertemuan_id", pertemuanIds)
+    : { data: [] };
+
+  const kuisIds = (kuisAll || []).map((k) => k.id);
+  const { data: myKuisNilai } = kuisIds.length > 0
+    ? await supabase
+        .from("kuis_attempt")
+        .select("skor")
+        .eq("mahasiswa_id", session.id)
+        .in("kuis_id", kuisIds)
+        .not("skor", "is", null)
+    : { data: [] };
+
+  const tugasNilaiList = [
+    ...(mySubmissionNilai || []).map((s) => s.nilai),
+    ...(myKuisNilai || []).map((k) => k.skor),
+  ].filter((v) => v !== null);
   const tugas = tugasNilaiList.length > 0
     ? Math.round(tugasNilaiList.reduce((a: number, b: number) => a + b, 0) / tugasNilaiList.length)
     : null;

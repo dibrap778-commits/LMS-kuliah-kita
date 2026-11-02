@@ -129,7 +129,7 @@ export default function RekapNilai({
                   { label: "Mahasiswa", sub: null },
                   { label: "NIM", sub: null },
                   { label: "Presensi", sub: null },
-                  { label: "Tugas", sub: "submission / manual" },
+                  { label: "Tugas", sub: "tugas + kuis / manual" },
                   { label: "UTS", sub: null },
                   { label: "UAS", sub: null },
                   { label: "Nilai Akhir", sub: null },
@@ -155,7 +155,7 @@ export default function RekapNilai({
                     {/* Tugas: auto dari submission jika ada, manual jika tidak */}
                     <td style={{ padding: "10px 14px", textAlign: "center" }}>
                       {row.tugasIsAuto ? (
-                        <span style={{ fontWeight: 600, color: "#1a1a1a", fontSize: 14 }} title="Rata-rata dari submission LMS">
+                        <span style={{ fontWeight: 600, color: "#1a1a1a", fontSize: 14 }} title="Rata-rata gabungan nilai tugas dan kuis">
                           {row.tugas}
                           <span style={{ fontSize: 9, color: "rgba(0,0,0,.3)", marginLeft: 2 }}>auto</span>
                         </span>
