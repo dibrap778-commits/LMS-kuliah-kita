@@ -65,33 +65,35 @@ export default async function MahasiswaMKDetail({
   const uas = nilaiData?.uas ?? null;
 
   const { data: tugasAll } = pertemuanIds.length > 0
-    ? await supabase.from("tugas").select("id").in("pertemuan_id", pertemuanIds)
+    ? await supabase.from("tugas").select("id, pertemuan_id, deadline").in("pertemuan_id", pertemuanIds)
     : { data: [] };
 
   const tugasIds = (tugasAll || []).map((t) => t.id);
-  const { data: mySubmissionNilai } = tugasIds.length > 0
+  const { data: mySubmissions } = tugasIds.length > 0
     ? await supabase
         .from("submission")
-        .select("nilai")
+        .select("tugas_id, nilai")
         .eq("mahasiswa_id", session.id)
         .in("tugas_id", tugasIds)
-        .not("nilai", "is", null)
     : { data: [] };
+  const submittedTugasIds = new Set((mySubmissions || []).map((s) => s.tugas_id));
+  const mySubmissionNilai = (mySubmissions || []).filter((s) => s.nilai !== null);
 
   // Skor kuis yang sudah selesai ikut digabung ke komponen Tugas
   const { data: kuisAll } = pertemuanIds.length > 0
-    ? await supabase.from("kuis").select("id").in("pertemuan_id", pertemuanIds)
+    ? await supabase.from("kuis").select("id, pertemuan_id").in("pertemuan_id", pertemuanIds)
     : { data: [] };
 
   const kuisIds = (kuisAll || []).map((k) => k.id);
-  const { data: myKuisNilai } = kuisIds.length > 0
+  const { data: myKuisAttempts } = kuisIds.length > 0
     ? await supabase
         .from("kuis_attempt")
-        .select("skor")
+        .select("kuis_id, waktu_selesai, skor")
         .eq("mahasiswa_id", session.id)
         .in("kuis_id", kuisIds)
-        .not("skor", "is", null)
     : { data: [] };
+  const kuisSelesaiIds = new Set((myKuisAttempts || []).filter((a) => a.waktu_selesai).map((a) => a.kuis_id));
+  const myKuisNilai = (myKuisAttempts || []).filter((a) => a.skor !== null);
 
   const tugasNilaiList = [
     ...(mySubmissionNilai || []).map((s) => s.nilai),
@@ -187,6 +189,25 @@ export default async function MahasiswaMKDetail({
               else if (p.absensi_buka) { tagText = "Absensi Dibuka"; tagClass = "tag tag-outline"; }
               else if (isNext) { tagText = "Berikutnya"; tagClass = "tag tag-accent"; }
 
+              // Tugas di pertemuan ini yang belum dikumpulkan, dengan urgensi dari deadline terdekat
+              const tugasBelum = (tugasAll || []).filter(
+                (t) => t.pertemuan_id === p.id && !submittedTugasIds.has(t.id)
+              );
+              let tugasBadge: { text: string; bg: string; color: string } | null = null;
+              if (tugasBelum.length > 0) {
+                const deadlineTerdekat = Math.min(...tugasBelum.map((t) => new Date(t.deadline).getTime()));
+                const sisaJam = (deadlineTerdekat - Date.now()) / 3600000;
+                const n = tugasBelum.length;
+                if (sisaJam < 0) tugasBadge = { text: `Tugas Terlambat${n > 1 ? ` (${n})` : ""}`, bg: "#fee2e2", color: "#b91c1c" };
+                else if (sisaJam <= 48) tugasBadge = { text: `Deadline Dekat${n > 1 ? ` (${n})` : ""}`, bg: "#fef3c7", color: "#92400e" };
+                else tugasBadge = { text: `${n} Tugas Belum`, bg: "#eff6ff", color: "#1e40af" };
+              }
+
+              // Kuis di pertemuan ini yang belum selesai dikerjakan
+              const kuisBelum = (kuisAll || []).filter(
+                (k) => k.pertemuan_id === p.id && !kuisSelesaiIds.has(k.id)
+              );
+
               return (
                 <Link
                   key={p.id}
@@ -209,12 +230,22 @@ export default async function MahasiswaMKDetail({
                       {new Date(p.tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
                     </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", fontSize: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 16px", fontSize: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
                     {tagText && <span className={tagClass}>{tagText}</span>}
+                    {tugasBadge && (
+                      <span className="tag" style={{ background: tugasBadge.bg, color: tugasBadge.color, fontWeight: 700 }}>
+                        {tugasBadge.text}
+                      </span>
+                    )}
+                    {kuisBelum.length > 0 && (
+                      <span className="tag" style={{ background: "#ede9fe", color: "#5b21b6", fontWeight: 700 }}>
+                        {kuisBelum.length > 1 ? `${kuisBelum.length} Kuis Belum` : "Kuis Belum Dikerjakan"}
+                      </span>
+                    )}
                     <span style={{ opacity: .6, whiteSpace: "nowrap" }}>
                       {p.materi?.[0]?.count || 0} materi · {p.tugas?.[0]?.count || 0} tugas
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: .5 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: .5, flexShrink: 0 }}>
                       <path d="m9 6 6 6-6 6" />
                     </svg>
                   </div>
