@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import MulaiKuis from "./MulaiKuis";
 import KuisAttempt from "./KuisAttempt";
+import { submitAttempt } from "@/lib/actions/kuis";
 
 export default async function KuisPage({
   params,
@@ -36,33 +37,37 @@ export default async function KuisPage({
 
   let state: "not_started" | "in_progress" | "finished" = "not_started";
   let skor: number | null = null;
+  let sudahSelesai = false;
   let pelanggaran = 0;
   let deadlineIso: string | null = null;
   let soalList: {
-    id: string; urutan: number; pertanyaan: string;
-    pilihan_a: string; pilihan_b: string; pilihan_c: string; pilihan_d: string;
+    id: string; urutan: number; tipe: "pilihan_ganda" | "esai"; pertanyaan: string;
+    pilihan_a: string | null; pilihan_b: string | null; pilihan_c: string | null; pilihan_d: string | null;
   }[] = [];
 
   if (attempt) {
     if (attempt.waktu_selesai) {
       state = "finished";
       skor = attempt.skor;
+      sudahSelesai = true;
       pelanggaran = attempt.pelanggaran ?? 0;
     } else {
       const deadline = new Date(attempt.waktu_mulai).getTime() + kuis.durasi_menit * 60000;
       if (Date.now() >= deadline) {
-        await supabase
-          .from("kuis_attempt")
-          .update({ waktu_selesai: new Date().toISOString(), skor: 0 })
-          .eq("id", attempt.id);
+        // Waktu habis tanpa interaksi klien (mis. tab ditutup) — finalisasi lewat
+        // jalur yang sama dengan submit manual, supaya soal esai tetap menunggu
+        // penilaian dosen alih-alih dipaksa skor 0.
+        const res = await submitAttempt(attempt.id, [], attempt.pelanggaran ?? 0);
         state = "finished";
-        skor = 0;
+        sudahSelesai = true;
+        skor = res?.skor ?? null;
+        pelanggaran = attempt.pelanggaran ?? 0;
       } else {
         state = "in_progress";
         deadlineIso = new Date(deadline).toISOString();
         const { data: soal } = await supabase
           .from("kuis_soal")
-          .select("id, urutan, pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d")
+          .select("id, urutan, tipe, pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d")
           .eq("kuis_id", kuisId)
           .order("urutan");
         soalList = soal || [];
@@ -102,15 +107,21 @@ export default async function KuisPage({
         <KuisAttempt attemptId={attempt!.id} deadlineIso={deadlineIso!} soalList={soalList} />
       )}
 
-      {state === "finished" && (
+      {state === "finished" && sudahSelesai && (
         <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
           <p className="text-sm text-gray-500 mb-2">Anda sudah menyelesaikan kuis ini.</p>
-          <div
-            className="text-4xl font-bold"
-            style={{ color: (skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b" }}
-          >
-            {skor}
-          </div>
+          {skor !== null ? (
+            <div
+              className="text-4xl font-bold"
+              style={{ color: skor >= 60 ? "#1e40af" : "#c23b3b" }}
+            >
+              {skor}
+            </div>
+          ) : (
+            <div className="text-sm font-medium text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
+              Menunggu penilaian dosen untuk soal esai. Nilai akhir akan muncul di sini setelah dosen selesai menilai.
+            </div>
+          )}
           {pelanggaran > 0 && (
             <p className="text-xs text-red-600 mt-3">
               Terdeteksi {pelanggaran}x keluar dari tab kuis selama pengerjaan.

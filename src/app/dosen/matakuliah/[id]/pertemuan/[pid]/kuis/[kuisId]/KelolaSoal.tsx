@@ -8,17 +8,19 @@ import Spinner from "@/components/Spinner";
 type Soal = {
   id: string;
   urutan: number;
+  tipe: "pilihan_ganda" | "esai";
   pertanyaan: string;
-  pilihan_a: string;
-  pilihan_b: string;
-  pilihan_c: string;
-  pilihan_d: string;
-  jawaban_benar: string;
+  pilihan_a: string | null;
+  pilihan_b: string | null;
+  pilihan_c: string | null;
+  pilihan_d: string | null;
+  jawaban_benar: string | null;
 };
 
 type Opt = "a" | "b" | "c" | "d";
 
 const emptyForm = {
+  tipe: "pilihan_ganda" as "pilihan_ganda" | "esai",
   pertanyaan: "", pilihan_a: "", pilihan_b: "", pilihan_c: "", pilihan_d: "", jawaban_benar: "" as Opt | "",
 };
 
@@ -60,37 +62,55 @@ export default function KelolaSoal({
   function openEdit(s: Soal) {
     setEditingId(s.id);
     setForm({
+      tipe: s.tipe,
       pertanyaan: s.pertanyaan,
-      pilihan_a: s.pilihan_a,
-      pilihan_b: s.pilihan_b,
-      pilihan_c: s.pilihan_c,
-      pilihan_d: s.pilihan_d,
-      jawaban_benar: s.jawaban_benar as Opt,
+      pilihan_a: s.pilihan_a ?? "",
+      pilihan_b: s.pilihan_b ?? "",
+      pilihan_c: s.pilihan_c ?? "",
+      pilihan_d: s.pilihan_d ?? "",
+      jawaban_benar: (s.jawaban_benar as Opt) ?? "",
     });
     setShowForm(true);
     setError("");
   }
 
   async function handleSaveSoal() {
-    const { pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d } = form;
-    if (!pertanyaan.trim() || !pilihan_a.trim() || !pilihan_b.trim() || !pilihan_c.trim() || !pilihan_d.trim()) {
-      setError("Semua field wajib diisi");
+    const { tipe, pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d } = form;
+    if (!pertanyaan.trim()) {
+      setError("Pertanyaan wajib diisi");
       return;
     }
-    if (!form.jawaban_benar) {
-      setError("Pilih salah satu opsi sebagai jawaban benar terlebih dahulu");
-      return;
+    if (tipe === "pilihan_ganda") {
+      if (!pilihan_a.trim() || !pilihan_b.trim() || !pilihan_c.trim() || !pilihan_d.trim()) {
+        setError("Semua pilihan jawaban wajib diisi");
+        return;
+      }
+      if (!form.jawaban_benar) {
+        setError("Pilih salah satu opsi sebagai jawaban benar terlebih dahulu");
+        return;
+      }
     }
     setSaving(true);
     setError("");
-    const payload = {
-      pertanyaan: pertanyaan.trim(),
-      pilihan_a: pilihan_a.trim(),
-      pilihan_b: pilihan_b.trim(),
-      pilihan_c: pilihan_c.trim(),
-      pilihan_d: pilihan_d.trim(),
-      jawaban_benar: form.jawaban_benar,
-    };
+    const payload = tipe === "pilihan_ganda"
+      ? {
+          tipe,
+          pertanyaan: pertanyaan.trim(),
+          pilihan_a: pilihan_a.trim(),
+          pilihan_b: pilihan_b.trim(),
+          pilihan_c: pilihan_c.trim(),
+          pilihan_d: pilihan_d.trim(),
+          jawaban_benar: form.jawaban_benar,
+        }
+      : {
+          tipe,
+          pertanyaan: pertanyaan.trim(),
+          pilihan_a: null,
+          pilihan_b: null,
+          pilihan_c: null,
+          pilihan_d: null,
+          jawaban_benar: null,
+        };
     const res = editingId
       ? await editSoal(editingId, kuisId, pertemuanId, mkId, payload)
       : await addSoal(kuisId, pertemuanId, mkId, { ...payload, urutan: soalList.length });
@@ -115,6 +135,9 @@ export default function KelolaSoal({
     background: "#fff", display: "block", boxSizing: "border-box",
   };
 
+  const jumlahEsai = soalList.filter((s) => s.tipe === "esai").length;
+  const jumlahPG = soalList.length - jumlahEsai;
+
   return (
     <div>
       {/* Header kuis */}
@@ -123,7 +146,9 @@ export default function KelolaSoal({
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-lg font-bold text-gray-900">{judul}</h1>
-              <p className="text-sm text-gray-500 mt-1">{soalList.length} soal · {durasi} menit</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {jumlahPG} pilihan ganda · {jumlahEsai} esai · {durasi} menit
+              </p>
             </div>
             <button
               onClick={() => setEditingHeader(true)}
@@ -171,28 +196,41 @@ export default function KelolaSoal({
         {soalList.map((s, i) => (
           <div key={s.id} className="bg-white rounded-xl border border-gray-200 p-4">
             <div className="flex items-start justify-between gap-3 mb-2">
-              <p className="text-sm font-medium text-gray-900">{i + 1}. {s.pertanyaan}</p>
+              <div className="flex items-start gap-2 min-w-0">
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5 ${
+                  s.tipe === "esai" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+                }`}>
+                  {s.tipe === "esai" ? "ESAI" : "PG"}
+                </span>
+                <p className="text-sm font-medium text-gray-900">{i + 1}. {s.pertanyaan}</p>
+              </div>
               <div className="flex gap-2 flex-shrink-0">
                 <button onClick={() => openEdit(s)} className="text-xs text-gray-500 hover:underline">Edit</button>
                 <button onClick={() => handleDelete(s.id)} className="text-xs text-red-500 hover:underline">Hapus</button>
               </div>
             </div>
-            <div className="space-y-1">
-              {(["a", "b", "c", "d"] as const).map((opt) => (
-                <div
-                  key={opt}
-                  style={{
-                    fontSize: 13, padding: "4px 10px", borderRadius: 6,
-                    color: s.jawaban_benar === opt ? "#1e40af" : "#65635d",
-                    background: s.jawaban_benar === opt ? "#eff6ff" : "transparent",
-                    fontWeight: s.jawaban_benar === opt ? 600 : 400,
-                  }}
-                >
-                  {opt.toUpperCase()}. {s[`pilihan_${opt}` as keyof Soal]}
-                  {s.jawaban_benar === opt && " ✓"}
-                </div>
-              ))}
-            </div>
+            {s.tipe === "esai" ? (
+              <p className="text-xs text-gray-400 pl-1">
+                Soal esai — dijawab bebas oleh mahasiswa, dinilai manual oleh Anda setelah dikumpulkan.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {(["a", "b", "c", "d"] as const).map((opt) => (
+                  <div
+                    key={opt}
+                    style={{
+                      fontSize: 13, padding: "4px 10px", borderRadius: 6,
+                      color: s.jawaban_benar === opt ? "#1e40af" : "#65635d",
+                      background: s.jawaban_benar === opt ? "#eff6ff" : "transparent",
+                      fontWeight: s.jawaban_benar === opt ? 600 : 400,
+                    }}
+                  >
+                    {opt.toUpperCase()}. {s[`pilihan_${opt}` as keyof Soal]}
+                    {s.jawaban_benar === opt && " ✓"}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -217,63 +255,91 @@ export default function KelolaSoal({
           )}
           <div className="space-y-3">
             <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Tipe Soal</label>
+              <div className="flex gap-2">
+                {(["pilihan_ganda", "esai"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, tipe: t }))}
+                    style={{
+                      flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      cursor: "pointer", fontFamily: "inherit",
+                      background: form.tipe === t ? "#2563eb" : "#fff",
+                      color: form.tipe === t ? "#fff" : "#65635d",
+                      border: form.tipe === t ? "none" : "1.5px solid #DFDEDA",
+                    }}
+                  >
+                    {t === "pilihan_ganda" ? "Pilihan Ganda" : "Esai"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Pertanyaan</label>
               <textarea
                 value={form.pertanyaan}
                 onChange={(e) => setForm((f) => ({ ...f, pertanyaan: e.target.value }))}
-                rows={2}
+                rows={form.tipe === "esai" ? 3 : 2}
                 style={{ ...inputStyle, resize: "vertical" }}
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Pilihan Jawaban <span className="text-gray-400 font-normal">(klik tombol di kanan untuk tandai jawaban benar)</span>
-              </label>
-              <div className="space-y-2">
-                {(["a", "b", "c", "d"] as const).map((opt) => {
-                  const isCorrect = form.jawaban_benar === opt;
-                  return (
-                    <div
-                      key={opt}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 8,
-                        padding: 6, borderRadius: 9,
-                        border: isCorrect ? "1.5px solid #2563eb" : "1.5px solid #DFDEDA",
-                        background: isCorrect ? "#eff6ff" : "#fff",
-                      }}
-                    >
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#65635d", width: 16, flexShrink: 0, textAlign: "center" }}>
-                        {opt.toUpperCase()}
-                      </span>
-                      <input
-                        value={form[`pilihan_${opt}` as "pilihan_a" | "pilihan_b" | "pilihan_c" | "pilihan_d"]}
-                        onChange={(e) => setForm((f) => ({ ...f, [`pilihan_${opt}`]: e.target.value }))}
-                        placeholder={`Pilihan ${opt.toUpperCase()}`}
-                        style={{ ...inputStyle, border: "none", padding: "4px 2px", flex: 1 }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setForm((f) => ({ ...f, jawaban_benar: opt }))}
+            {form.tipe === "pilihan_ganda" ? (
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Pilihan Jawaban <span className="text-gray-400 font-normal">(klik tombol di kanan untuk tandai jawaban benar)</span>
+                </label>
+                <div className="space-y-2">
+                  {(["a", "b", "c", "d"] as const).map((opt) => {
+                    const isCorrect = form.jawaban_benar === opt;
+                    return (
+                      <div
+                        key={opt}
                         style={{
-                          flexShrink: 0, fontSize: 11, fontWeight: 700, padding: "6px 10px",
-                          borderRadius: 7, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
-                          background: isCorrect ? "#2563eb" : "#fff",
-                          color: isCorrect ? "#fff" : "#65635d",
-                          border: isCorrect ? "none" : "1px solid rgba(0,0,0,.15)",
+                          display: "flex", alignItems: "center", gap: 8,
+                          padding: 6, borderRadius: 9,
+                          border: isCorrect ? "1.5px solid #2563eb" : "1.5px solid #DFDEDA",
+                          background: isCorrect ? "#eff6ff" : "#fff",
                         }}
                       >
-                        {isCorrect ? "✓ Jawaban Benar" : "Tandai Benar"}
-                      </button>
-                    </div>
-                  );
-                })}
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#65635d", width: 16, flexShrink: 0, textAlign: "center" }}>
+                          {opt.toUpperCase()}
+                        </span>
+                        <input
+                          value={form[`pilihan_${opt}` as "pilihan_a" | "pilihan_b" | "pilihan_c" | "pilihan_d"]}
+                          onChange={(e) => setForm((f) => ({ ...f, [`pilihan_${opt}`]: e.target.value }))}
+                          placeholder={`Pilihan ${opt.toUpperCase()}`}
+                          style={{ ...inputStyle, border: "none", padding: "4px 2px", flex: 1 }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, jawaban_benar: opt }))}
+                          style={{
+                            flexShrink: 0, fontSize: 11, fontWeight: 700, padding: "6px 10px",
+                            borderRadius: 7, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
+                            background: isCorrect ? "#2563eb" : "#fff",
+                            color: isCorrect ? "#fff" : "#65635d",
+                            border: isCorrect ? "none" : "1px solid rgba(0,0,0,.15)",
+                          }}
+                        >
+                          {isCorrect ? "✓ Jawaban Benar" : "Tandai Benar"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-xs text-gray-400">
+                Mahasiswa akan menjawab lewat kotak teks bebas. Tidak ada auto-grading — Anda beri nilai
+                manual (0–100) setelah mahasiswa mengumpulkan.
+              </p>
+            )}
           </div>
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSaveSoal}
-              disabled={saving || !form.jawaban_benar}
+              disabled={saving || (form.tipe === "pilihan_ganda" && !form.jawaban_benar)}
               className="px-4 py-2 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 disabled:opacity-50 inline-flex items-center gap-2"
             >
               {saving && <Spinner light />}

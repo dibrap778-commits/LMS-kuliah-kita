@@ -8,8 +8,8 @@ import Spinner from "@/components/Spinner";
 const MAX_PELANGGARAN = 3;
 
 type Soal = {
-  id: string; urutan: number; pertanyaan: string;
-  pilihan_a: string; pilihan_b: string; pilihan_c: string; pilihan_d: string;
+  id: string; urutan: number; tipe: "pilihan_ganda" | "esai"; pertanyaan: string;
+  pilihan_a: string | null; pilihan_b: string | null; pilihan_c: string | null; pilihan_d: string | null;
 };
 
 export default function KuisAttempt({
@@ -20,7 +20,7 @@ export default function KuisAttempt({
   const router = useRouter();
   const deadline = useMemo(() => new Date(deadlineIso).getTime(), [deadlineIso]);
   const [remaining, setRemaining] = useState(() => Math.max(0, deadline - Date.now()));
-  const [jawaban, setJawaban] = useState<Record<string, "a" | "b" | "c" | "d">>({});
+  const [jawaban, setJawaban] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [pelanggaran, setPelanggaran] = useState(0);
   const [peringatan, setPeringatan] = useState("");
@@ -33,7 +33,12 @@ export default function KuisAttempt({
     if (submittedRef.current) return;
     submittedRef.current = true;
     setSubmitting(true);
-    const payload = soalList.map((s) => ({ soal_id: s.id, jawaban_dipilih: jawabanRef.current[s.id] ?? null }));
+    const payload = soalList.map((s) => {
+      const nilai = jawabanRef.current[s.id];
+      return s.tipe === "esai"
+        ? { soal_id: s.id, jawaban_dipilih: null, jawaban_esai: nilai ?? null }
+        : { soal_id: s.id, jawaban_dipilih: nilai ?? null, jawaban_esai: null };
+    });
     await submitAttempt(attemptId, payload, finalPelanggaran ?? pelanggaranRef.current);
     router.refresh();
   }
@@ -72,7 +77,8 @@ export default function KuisAttempt({
   const minutes = Math.floor(remaining / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
   const isLow = remaining < 60000;
-  const dijawab = Object.keys(jawaban).length;
+  const dijawab = Object.values(jawaban).filter((v) => v && v.trim() !== "").length;
+  const adaEsai = soalList.some((s) => s.tipe === "esai");
 
   return (
     <div>
@@ -125,37 +131,59 @@ export default function KuisAttempt({
 
       <p style={{ fontSize: 12.5, color: "#64748b", marginBottom: 16 }}>
         Jangan berpindah tab atau aplikasi lain selama mengerjakan — sistem mendeteksi dan mencatatnya sebagai pelanggaran.
+        {adaEsai && " Soal esai dinilai manual oleh dosen setelah Anda mengumpulkan."}
       </p>
 
       <div className="space-y-4">
         {soalList.map((s, i) => (
           <div key={s.id} className="bg-white rounded-xl border border-gray-200 p-5">
-            <p className="text-sm font-medium text-gray-900 mb-3">{i + 1}. {s.pertanyaan}</p>
-            <div className="space-y-2">
-              {(["a", "b", "c", "d"] as const).map((opt) => (
-                <label
-                  key={opt}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer",
-                    padding: "8px 12px", borderRadius: 8,
-                    border: jawaban[s.id] === opt ? "1.5px solid #2563eb" : "1px solid rgba(0,0,0,.12)",
-                    background: jawaban[s.id] === opt ? "#eff6ff" : "#fff",
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name={`soal-${s.id}`}
-                    checked={jawaban[s.id] === opt}
-                    onChange={() => setJawaban((prev) => ({ ...prev, [s.id]: opt }))}
-                    style={{ accentColor: "#2563eb" }}
-                  />
-                  <span style={{ textTransform: "uppercase", fontWeight: 600, color: "#65635d", width: 16 }}>
-                    {opt}
-                  </span>
-                  <span>{s[`pilihan_${opt}` as keyof Soal]}</span>
-                </label>
-              ))}
+            <div className="flex items-start gap-2 mb-3">
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5 ${
+                s.tipe === "esai" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+              }`}>
+                {s.tipe === "esai" ? "ESAI" : "PG"}
+              </span>
+              <p className="text-sm font-medium text-gray-900">{i + 1}. {s.pertanyaan}</p>
             </div>
+            {s.tipe === "esai" ? (
+              <textarea
+                value={jawaban[s.id] ?? ""}
+                onChange={(e) => setJawaban((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                placeholder="Tulis jawaban Anda di sini..."
+                rows={4}
+                style={{
+                  width: "100%", padding: "10px 12px", borderRadius: 8,
+                  border: "1.5px solid rgba(0,0,0,.12)", fontSize: 14, fontFamily: "inherit",
+                  resize: "vertical", boxSizing: "border-box",
+                }}
+              />
+            ) : (
+              <div className="space-y-2">
+                {(["a", "b", "c", "d"] as const).map((opt) => (
+                  <label
+                    key={opt}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 10, fontSize: 14, cursor: "pointer",
+                      padding: "8px 12px", borderRadius: 8,
+                      border: jawaban[s.id] === opt ? "1.5px solid #2563eb" : "1px solid rgba(0,0,0,.12)",
+                      background: jawaban[s.id] === opt ? "#eff6ff" : "#fff",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name={`soal-${s.id}`}
+                      checked={jawaban[s.id] === opt}
+                      onChange={() => setJawaban((prev) => ({ ...prev, [s.id]: opt }))}
+                      style={{ accentColor: "#2563eb" }}
+                    />
+                    <span style={{ textTransform: "uppercase", fontWeight: 600, color: "#65635d", width: 16 }}>
+                      {opt}
+                    </span>
+                    <span>{s[`pilihan_${opt}` as "pilihan_a" | "pilihan_b" | "pilihan_c" | "pilihan_d"]}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>

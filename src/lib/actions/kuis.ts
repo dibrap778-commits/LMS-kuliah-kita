@@ -5,12 +5,13 @@ import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 type SoalInput = {
+  tipe: "pilihan_ganda" | "esai";
   pertanyaan: string;
-  pilihan_a: string;
-  pilihan_b: string;
-  pilihan_c: string;
-  pilihan_d: string;
-  jawaban_benar: string;
+  pilihan_a: string | null;
+  pilihan_b: string | null;
+  pilihan_c: string | null;
+  pilihan_d: string | null;
+  jawaban_benar: string | null;
 };
 
 export async function createKuis(
@@ -151,7 +152,7 @@ export async function startAttempt(kuisId: string) {
 
 export async function submitAttempt(
   attemptId: string,
-  jawaban: { soal_id: string; jawaban_dipilih: string | null }[],
+  jawaban: { soal_id: string; jawaban_dipilih: string | null; jawaban_esai?: string | null }[],
   pelanggaran: number = 0
 ) {
   const session = await getSession();
@@ -171,28 +172,118 @@ export async function submitAttempt(
 
   const { data: soalList } = await supabase
     .from("kuis_soal")
-    .select("id, jawaban_benar")
+    .select("id, tipe, jawaban_benar")
     .eq("kuis_id", attempt.kuis_id);
 
-  const kunci: Record<string, string> = {};
-  for (const s of soalList || []) kunci[s.id] = s.jawaban_benar;
+  const soalMap: Record<string, { tipe: string; jawaban_benar: string | null }> = {};
+  for (const s of soalList || []) soalMap[s.id] = s;
 
-  let benar = 0;
   const rows = jawaban
-    .filter((j) => j.jawaban_dipilih !== null)
-    .map((j) => {
-      if (kunci[j.soal_id] && j.jawaban_dipilih === kunci[j.soal_id]) benar++;
-      return { attempt_id: attemptId, soal_id: j.soal_id, jawaban_dipilih: j.jawaban_dipilih };
-    });
-
-  const total = soalList?.length || 1;
-  const skor = Math.round((benar / total) * 100);
+    .filter((j) => j.jawaban_dipilih !== null || (j.jawaban_esai && j.jawaban_esai.trim() !== ""))
+    .map((j) => ({
+      attempt_id: attemptId,
+      soal_id: j.soal_id,
+      jawaban_dipilih: j.jawaban_dipilih ?? null,
+      jawaban_esai: j.jawaban_esai?.trim() || null,
+    }));
 
   if (rows.length > 0) await supabase.from("kuis_jawaban").insert(rows);
+
+  const adaEsai = (soalList || []).some((s) => s.tipe === "esai");
+
+  if (!adaEsai) {
+    let benar = 0;
+    for (const j of jawaban) {
+      const s = soalMap[j.soal_id];
+      if (s && j.jawaban_dipilih && j.jawaban_dipilih === s.jawaban_benar) benar++;
+    }
+    const total = soalList?.length || 1;
+    const skor = Math.round((benar / total) * 100);
+    await supabase
+      .from("kuis_attempt")
+      .update({ waktu_selesai: new Date().toISOString(), skor, pelanggaran })
+      .eq("id", attemptId);
+    return { success: true, skor };
+  }
+
+  // Ada soal esai: pilihan ganda dihitung di belakang layar, tapi skor final
+  // baru dikunci setelah dosen menilai semua esai (lihat finalisasiSkor()).
   await supabase
     .from("kuis_attempt")
-    .update({ waktu_selesai: new Date().toISOString(), skor, pelanggaran })
+    .update({ waktu_selesai: new Date().toISOString(), skor: null, pelanggaran })
     .eq("id", attemptId);
 
-  return { success: true, skor };
+  return { success: true, skor: null, pending: true };
+}
+
+async function finalisasiSkor(attemptId: string) {
+  const supabase = createServerClient();
+
+  const { data: attempt } = await supabase
+    .from("kuis_attempt")
+    .select("id, kuis_id")
+    .eq("id", attemptId)
+    .single();
+  if (!attempt) return;
+
+  const { data: soalList } = await supabase
+    .from("kuis_soal")
+    .select("id, tipe, jawaban_benar")
+    .eq("kuis_id", attempt.kuis_id);
+
+  const { data: jawabanList } = await supabase
+    .from("kuis_jawaban")
+    .select("soal_id, jawaban_dipilih, nilai")
+    .eq("attempt_id", attemptId);
+
+  const jawabanMap: Record<string, { jawaban_dipilih: string | null; nilai: number | null }> = {};
+  for (const j of jawabanList || []) jawabanMap[j.soal_id] = j;
+
+  const esaiSoal = (soalList || []).filter((s) => s.tipe === "esai");
+  const semuaEsaiDinilai = esaiSoal.every((s) => {
+    const n = jawabanMap[s.id]?.nilai;
+    return n !== null && n !== undefined;
+  });
+
+  if (!semuaEsaiDinilai) return;
+
+  const total = (soalList || []).length || 1;
+  let totalFraksi = 0;
+  for (const s of soalList || []) {
+    if (s.tipe === "esai") {
+      totalFraksi += (jawabanMap[s.id]?.nilai ?? 0) / 100;
+    } else {
+      const dipilih = jawabanMap[s.id]?.jawaban_dipilih;
+      if (dipilih && dipilih === s.jawaban_benar) totalFraksi += 1;
+    }
+  }
+  const skor = Math.round((totalFraksi / total) * 100);
+
+  await supabase.from("kuis_attempt").update({ skor }).eq("id", attemptId);
+}
+
+export async function nilaiEsai(
+  jawabanId: string,
+  nilai: number,
+  attemptId: string,
+  kuisId: string,
+  pertemuanId: string,
+  mkId: string
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase
+    .from("kuis_jawaban")
+    .update({ nilai: Math.max(0, Math.min(100, nilai)) })
+    .eq("id", jawabanId);
+
+  if (error) return { error: "Gagal menyimpan nilai esai" };
+
+  await finalisasiSkor(attemptId);
+
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}/kuis/${kuisId}`);
+  revalidatePath(`/dosen/matakuliah/${mkId}`);
+  return { success: true };
 }

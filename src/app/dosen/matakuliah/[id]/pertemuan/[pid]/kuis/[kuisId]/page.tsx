@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServerClient } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import KelolaSoal from "./KelolaSoal";
+import NilaiEsai from "./NilaiEsai";
 
 export default async function KelolaKuisPage({
   params,
@@ -25,6 +26,10 @@ export default async function KelolaKuisPage({
     .eq("kuis_id", kuisId)
     .order("urutan");
 
+  const esaiSoalIds = (soalList || []).filter((s) => s.tipe === "esai").map((s) => s.id);
+  const pertanyaanEsaiMap: Record<string, string> = {};
+  for (const s of soalList || []) if (s.tipe === "esai") pertanyaanEsaiMap[s.id] = s.pertanyaan;
+
   const { data: mahasiswa } = await supabase
     .from("enrollment")
     .select("mahasiswa:mahasiswa_id(id, nim, nama)")
@@ -32,17 +37,43 @@ export default async function KelolaKuisPage({
 
   const { data: attempts } = await supabase
     .from("kuis_attempt")
-    .select("mahasiswa_id, waktu_selesai, skor, pelanggaran")
+    .select("id, mahasiswa_id, waktu_selesai, skor, pelanggaran")
     .eq("kuis_id", kuisId);
 
-  const attemptMap: Record<string, { waktu_selesai: string | null; skor: number | null; pelanggaran: number | null }> = {};
+  const attemptIds = (attempts || []).map((a) => a.id);
+  const { data: esaiJawabanAll } = attemptIds.length > 0 && esaiSoalIds.length > 0
+    ? await supabase
+        .from("kuis_jawaban")
+        .select("id, attempt_id, soal_id, jawaban_esai, nilai")
+        .in("attempt_id", attemptIds)
+        .in("soal_id", esaiSoalIds)
+    : { data: [] };
+
+  const esaiJawabanByAttempt: Record<string, { jawabanId: string; pertanyaan: string; jawabanEsai: string | null; nilai: number | null }[]> = {};
+  for (const j of esaiJawabanAll || []) {
+    if (!esaiJawabanByAttempt[j.attempt_id]) esaiJawabanByAttempt[j.attempt_id] = [];
+    esaiJawabanByAttempt[j.attempt_id].push({
+      jawabanId: j.id,
+      pertanyaan: pertanyaanEsaiMap[j.soal_id] || "",
+      jawabanEsai: j.jawaban_esai,
+      nilai: j.nilai,
+    });
+  }
+
+  const attemptMap: Record<string, { id: string; waktu_selesai: string | null; skor: number | null; pelanggaran: number | null }> = {};
   for (const a of attempts || []) attemptMap[a.mahasiswa_id] = a;
 
   const hasilKuis = (mahasiswa || []).map((e: Record<string, unknown>) => {
     const mhs = e.mahasiswa as { id: string; nim: string; nama: string };
     const a = attemptMap[mhs.id];
     const status: "belum" | "sedang" | "selesai" = !a ? "belum" : a.waktu_selesai ? "selesai" : "sedang";
-    return { id: mhs.id, nim: mhs.nim, nama: mhs.nama, status, skor: a?.skor ?? null, pelanggaran: a?.pelanggaran ?? 0 };
+    const menungguEsai = status === "selesai" && a.skor === null;
+    return {
+      id: mhs.id, nim: mhs.nim, nama: mhs.nama, status,
+      skor: a?.skor ?? null, pelanggaran: a?.pelanggaran ?? 0,
+      menungguEsai, attemptId: a?.id ?? null,
+      esaiItems: a ? esaiJawabanByAttempt[a.id] || [] : [],
+    };
   });
 
   const sudahSelesai = hasilKuis.filter((h) => h.status === "selesai").length;
@@ -79,34 +110,51 @@ export default async function KelolaKuisPage({
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
             {hasilKuis.map((h) => (
-              <div key={h.id} className="px-4 py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm text-gray-900">{h.nama}</div>
-                  <div className="text-xs text-gray-400 font-mono">{h.nim}</div>
+              <div key={h.id} className="px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm text-gray-900">{h.nama}</div>
+                    <div className="text-xs text-gray-400 font-mono">{h.nim}</div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {h.pelanggaran > 0 && (
+                      <span className="text-xs text-red-600" title="Jumlah kali keluar dari tab kuis">
+                        ⚠ {h.pelanggaran}x
+                      </span>
+                    )}
+                    {h.status === "selesai" ? (
+                      h.menungguEsai ? (
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">
+                          Menunggu dinilai
+                        </span>
+                      ) : (
+                        <span
+                          className="text-sm font-bold"
+                          style={{ color: (h.skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b" }}
+                        >
+                          {h.skor}
+                        </span>
+                      )
+                    ) : h.status === "sedang" ? (
+                      <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                        Sedang mengerjakan
+                      </span>
+                    ) : (
+                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium">
+                        Belum mengerjakan
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  {h.pelanggaran > 0 && (
-                    <span className="text-xs text-red-600" title="Jumlah kali keluar dari tab kuis">
-                      ⚠ {h.pelanggaran}x
-                    </span>
-                  )}
-                  {h.status === "selesai" ? (
-                    <span
-                      className="text-sm font-bold"
-                      style={{ color: (h.skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b" }}
-                    >
-                      {h.skor}
-                    </span>
-                  ) : h.status === "sedang" ? (
-                    <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full font-medium">
-                      Sedang mengerjakan
-                    </span>
-                  ) : (
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full font-medium">
-                      Belum mengerjakan
-                    </span>
-                  )}
-                </div>
+                {h.menungguEsai && h.attemptId && h.esaiItems.length > 0 && (
+                  <NilaiEsai
+                    attemptId={h.attemptId}
+                    kuisId={kuisId}
+                    pertemuanId={pid}
+                    mkId={id}
+                    items={h.esaiItems}
+                  />
+                )}
               </div>
             ))}
           </div>
