@@ -76,6 +76,11 @@ export default async function MahasiswaPertemuanDetail({
     return null;
   }
 
+  function getYoutubeEmbedUrl(url: string): string | null {
+    const ytId = getYoutubeId(url);
+    return ytId ? `https://www.youtube.com/embed/${ytId}` : null;
+  }
+
   const iconFile = (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" /><path d="M14 2v6h6" />
@@ -141,45 +146,35 @@ export default async function MahasiswaPertemuanDetail({
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {materiList.map((m) => {
                   if (m.tipe === "video") {
-                    const ytId = getYoutubeId(m.url);
-                    return ytId ? (
-                      <a
+                    const embedUrl = getYoutubeEmbedUrl(m.url);
+                    return embedUrl ? (
+                      <div
                         key={m.id}
-                        href={m.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         style={{
-                          display: "block", background: "#fff", borderRadius: 14,
-                          border: "1.5px solid #c7ddfb", overflow: "hidden", textDecoration: "none",
+                          background: "#fff", borderRadius: 14,
+                          border: "1.5px solid #c7ddfb", overflow: "hidden",
                         }}
                       >
                         <div style={{ position: "relative", aspectRatio: "16/9", background: "#000" }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-                            alt=""
-                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                          <iframe
+                            src={embedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{ width: "100%", height: "100%", border: "none", display: "block" }}
                           />
-                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <div style={{
-                              width: 52, height: 52, borderRadius: "50%", background: "rgba(255,255,255,.94)",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                            }}>
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb"><path d="M8 5v14l11-7Z" /></svg>
-                            </div>
-                          </div>
-                          <span style={{
-                            position: "absolute", top: 10, left: 10, background: "rgba(11,23,72,.75)",
-                            color: "#fff", fontSize: 11, fontWeight: 600, padding: "4px 9px", borderRadius: 6,
-                          }}>
-                            Video pembelajaran
-                          </span>
                         </div>
                         <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                           <span style={{ fontSize: 14, fontWeight: 600, color: "#0b1748" }}>{m.nama_file || "Video materi pertemuan"}</span>
-                          <span style={{ fontSize: 12.5, color: "#2563eb", fontWeight: 700, whiteSpace: "nowrap" }}>Buka di YouTube ↗</span>
+                          <a
+                            href={m.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: 12.5, color: "#2563eb", fontWeight: 700, whiteSpace: "nowrap", textDecoration: "none" }}
+                          >
+                            Buka di YouTube ↗
+                          </a>
                         </div>
-                      </a>
+                      </div>
                     ) : (
                       <a
                         key={m.id}
