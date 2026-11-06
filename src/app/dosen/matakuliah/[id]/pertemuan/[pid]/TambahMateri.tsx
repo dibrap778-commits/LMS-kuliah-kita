@@ -46,9 +46,22 @@ export default function TambahMateri({ pertemuanId }: { pertemuanId: string }) {
       formData.set("url", result.url);
       formData.set("nama_file", result.nama_file);
     } else {
-      const url = (form.querySelector<HTMLInputElement>('input[name="video_url"]'))?.value;
+      const url = (form.querySelector<HTMLInputElement>('input[name="video_url"]'))?.value.trim();
       if (!url) {
         setError("Masukkan URL video");
+        setUploading(false);
+        return;
+      }
+      let parsed: URL;
+      try {
+        parsed = new URL(url);
+      } catch {
+        setError("URL tidak valid. Pastikan diawali https://");
+        setUploading(false);
+        return;
+      }
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+        setError("URL harus link dari internet (https://...), bukan file dari komputer kamu.");
         setUploading(false);
         return;
       }

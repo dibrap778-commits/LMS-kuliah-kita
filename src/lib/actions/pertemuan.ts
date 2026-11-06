@@ -50,6 +50,17 @@ export async function addMateri(formData: FormData) {
   const url = formData.get("url") as string;
   const nama_file = formData.get("nama_file") as string;
 
+  if (tipe === "video") {
+    try {
+      const protocol = new URL(url).protocol;
+      if (protocol !== "https:" && protocol !== "http:") {
+        return { error: "URL video harus link dari internet (https://...)" };
+      }
+    } catch {
+      return { error: "URL video tidak valid" };
+    }
+  }
+
   const supabase = createServerClient();
 
   const { error } = await supabase.from("materi").insert({
