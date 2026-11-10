@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import MulaiKuis from "./MulaiKuis";
 import KuisAttempt from "./KuisAttempt";
 import { submitAttempt } from "@/lib/actions/kuis";
+import { seededShuffle } from "@/lib/shuffle";
 
 export default async function KuisPage({
   params,
@@ -63,7 +64,9 @@ export default async function KuisPage({
         .select("id, urutan, tipe, pertanyaan, pilihan_a, pilihan_b, pilihan_c, pilihan_d")
         .eq("kuis_id", kuisId)
         .order("urutan");
-      soalList = soal || [];
+      // Acak urutan soal per attempt (konsisten selama attempt ini berlangsung,
+      // tapi beda tiap percobaan/mahasiswa) supaya tidak gampang dicontek.
+      soalList = seededShuffle(soal || [], inProgress.id);
     }
   }
 
