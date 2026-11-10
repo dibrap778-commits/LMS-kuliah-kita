@@ -58,31 +58,50 @@ export default async function MataKuliahDetail({
 
   // Hitung rata-rata tugas dari submission yang sudah dinilai
   const { data: tugasAll } = pertemuanIds.length > 0
-    ? await supabase.from("tugas").select("id").in("pertemuan_id", pertemuanIds)
+    ? await supabase.from("tugas").select("id, pertemuan_id").in("pertemuan_id", pertemuanIds)
     : { data: [] };
 
   const tugasIds = (tugasAll || []).map((t) => t.id);
-  const { data: submissionNilai } = tugasIds.length > 0
+  const { data: submissionAll } = tugasIds.length > 0
     ? await supabase
         .from("submission")
-        .select("mahasiswa_id, nilai")
+        .select("tugas_id, mahasiswa_id, nilai")
         .in("tugas_id", tugasIds)
-        .not("nilai", "is", null)
     : { data: [] };
+  const submissionNilai = (submissionAll || []).filter((s) => s.nilai !== null);
+  const submissionBelumDinilai = (submissionAll || []).filter((s) => s.nilai === null);
 
   // Hitung rata-rata skor kuis yang sudah selesai (ikut digabung ke komponen Tugas)
   const { data: kuisAll } = pertemuanIds.length > 0
-    ? await supabase.from("kuis").select("id").in("pertemuan_id", pertemuanIds)
+    ? await supabase.from("kuis").select("id, pertemuan_id").in("pertemuan_id", pertemuanIds)
     : { data: [] };
 
   const kuisIds = (kuisAll || []).map((k) => k.id);
-  const { data: kuisAttemptNilaiRaw } = kuisIds.length > 0
+  const { data: kuisAttemptAll } = kuisIds.length > 0
     ? await supabase
         .from("kuis_attempt")
-        .select("kuis_id, mahasiswa_id, skor")
+        .select("kuis_id, mahasiswa_id, waktu_selesai, skor")
         .in("kuis_id", kuisIds)
-        .not("skor", "is", null)
     : { data: [] };
+  const kuisAttemptNilaiRaw = (kuisAttemptAll || []).filter((a) => a.skor !== null);
+  const kuisEsaiBelumDinilai = (kuisAttemptAll || []).filter((a) => a.waktu_selesai && a.skor === null);
+
+  // Rangkuman submission tugas + esai kuis yang masih menunggu dinilai, per pertemuan
+  const tugasPertemuanMap: Record<string, string> = {};
+  for (const t of tugasAll || []) tugasPertemuanMap[t.id] = t.pertemuan_id;
+  const kuisPertemuanMap: Record<string, string> = {};
+  for (const k of kuisAll || []) kuisPertemuanMap[k.id] = k.pertemuan_id;
+
+  const belumDinilaiPerPertemuan: Record<string, number> = {};
+  for (const s of submissionBelumDinilai) {
+    const pid = tugasPertemuanMap[s.tugas_id];
+    if (pid) belumDinilaiPerPertemuan[pid] = (belumDinilaiPerPertemuan[pid] || 0) + 1;
+  }
+  for (const a of kuisEsaiBelumDinilai) {
+    const pid = kuisPertemuanMap[a.kuis_id];
+    if (pid) belumDinilaiPerPertemuan[pid] = (belumDinilaiPerPertemuan[pid] || 0) + 1;
+  }
+  const totalBelumDinilai = Object.values(belumDinilaiPerPertemuan).reduce((a, b) => a + b, 0);
 
   // Kuis bisa dicoba berkali-kali — ambil nilai terbaik per (kuis, mahasiswa)
   // supaya tidak dihitung berulang saat akumulasi ke komponen Tugas.
@@ -174,6 +193,36 @@ export default async function MataKuliahDetail({
         </div>
       </div>
 
+      {/* Ringkasan belum dinilai */}
+      {totalBelumDinilai > 0 && (
+        <div style={{
+          display: "flex", flexDirection: "column", gap: 10,
+          background: "#fef3c7", border: "1.5px solid #fde68a", borderRadius: 12, padding: "14px 18px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#92400e" }}>
+            ⚠ {totalBelumDinilai} item belum dinilai di seluruh mata kuliah ini
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {pertemuanList.map((p, i) => {
+              const count = belumDinilaiPerPertemuan[p.id];
+              if (!count) return null;
+              return (
+                <Link
+                  key={p.id}
+                  href={`/dosen/matakuliah/${id}/pertemuan/${p.id}`}
+                  style={{
+                    fontSize: 12.5, fontWeight: 600, color: "#92400e", background: "#fff",
+                    border: "1px solid #fde68a", borderRadius: 999, padding: "4px 12px", textDecoration: "none",
+                  }}
+                >
+                  Pertemuan {i + 1} ({count})
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Two columns */}
       <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "flex-start" }}>
         {/* Left: progress + meeting list */}
@@ -224,6 +273,14 @@ export default async function MataKuliahDetail({
                     </span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", fontSize: 12 }}>
+                    {belumDinilaiPerPertemuan[p.id] > 0 && (
+                      <span style={{
+                        fontSize: 11.5, fontWeight: 700, padding: "3px 10px", borderRadius: 999,
+                        background: "#fef3c7", color: "#92400e", whiteSpace: "nowrap",
+                      }}>
+                        ⚠ {belumDinilaiPerPertemuan[p.id]} belum dinilai
+                      </span>
+                    )}
                     {p.absensi_buka && <span className="tag tag-accent">Absensi Dibuka</span>}
                     {isNext && !p.absensi_buka && <span className="tag tag-accent">Berikutnya</span>}
                     <span style={{ opacity: .6, whiteSpace: "nowrap" }}>
