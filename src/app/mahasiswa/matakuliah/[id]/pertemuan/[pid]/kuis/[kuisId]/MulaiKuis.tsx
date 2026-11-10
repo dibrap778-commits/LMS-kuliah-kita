@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { startAttempt } from "@/lib/actions/kuis";
 import Spinner from "@/components/Spinner";
 
-export default function MulaiKuis({ kuisId }: { kuisId: string }) {
+export default function MulaiKuis({ kuisId, label = "Mulai Kuis" }: { kuisId: string; label?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function MulaiKuis({ kuisId }: { kuisId: string }) {
         }}
       >
         {loading && <Spinner light />}
-        {loading ? "Memulai..." : "Mulai Kuis"}
+        {loading ? "Memulai..." : label}
       </button>
     </div>
   );

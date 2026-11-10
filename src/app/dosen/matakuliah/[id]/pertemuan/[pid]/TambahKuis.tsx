@@ -15,16 +15,17 @@ export default function TambahKuis({
   const [open, setOpen] = useState(false);
   const [judul, setJudul] = useState("");
   const [durasi, setDurasi] = useState("30");
+  const [maksAttempt, setMaksAttempt] = useState("1");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!judul.trim() || !durasi) return;
+    if (!judul.trim() || !durasi || !maksAttempt) return;
     setLoading(true);
     setError("");
-    const res = await createKuis(pertemuanId, mkId, judul.trim(), Number(durasi));
+    const res = await createKuis(pertemuanId, mkId, judul.trim(), Number(durasi), Number(maksAttempt));
     setLoading(false);
     if (res?.error) {
       setError(res.error);
@@ -64,16 +65,29 @@ export default function TambahKuis({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Durasi (menit)</label>
-          <input
-            type="number"
-            min={1}
-            value={durasi}
-            onChange={(e) => setDurasi(e.target.value)}
-            required
-            className="w-32 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
+        <div className="flex gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Durasi (menit)</label>
+            <input
+              type="number"
+              min={1}
+              value={durasi}
+              onChange={(e) => setDurasi(e.target.value)}
+              required
+              className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Maks. percobaan</label>
+            <input
+              type="number"
+              min={1}
+              value={maksAttempt}
+              onChange={(e) => setMaksAttempt(e.target.value)}
+              required
+              className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
         </div>
         <p className="text-xs text-gray-400">
           Setelah dibuat, Anda akan diarahkan untuk menambahkan soal.

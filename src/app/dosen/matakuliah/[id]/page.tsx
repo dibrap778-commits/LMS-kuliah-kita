@@ -76,13 +76,27 @@ export default async function MataKuliahDetail({
     : { data: [] };
 
   const kuisIds = (kuisAll || []).map((k) => k.id);
-  const { data: kuisAttemptNilai } = kuisIds.length > 0
+  const { data: kuisAttemptNilaiRaw } = kuisIds.length > 0
     ? await supabase
         .from("kuis_attempt")
-        .select("mahasiswa_id, skor")
+        .select("kuis_id, mahasiswa_id, skor")
         .in("kuis_id", kuisIds)
         .not("skor", "is", null)
     : { data: [] };
+
+  // Kuis bisa dicoba berkali-kali — ambil nilai terbaik per (kuis, mahasiswa)
+  // supaya tidak dihitung berulang saat akumulasi ke komponen Tugas.
+  const bestSkorPerKuisMahasiswa: Record<string, number> = {};
+  for (const k of kuisAttemptNilaiRaw || []) {
+    const key = `${k.kuis_id}:${k.mahasiswa_id}`;
+    if (k.skor !== null && (bestSkorPerKuisMahasiswa[key] === undefined || k.skor > bestSkorPerKuisMahasiswa[key])) {
+      bestSkorPerKuisMahasiswa[key] = k.skor;
+    }
+  }
+  const kuisAttemptNilai = Object.entries(bestSkorPerKuisMahasiswa).map(([key, skor]) => ({
+    mahasiswa_id: key.split(":")[1],
+    skor,
+  }));
 
   const tugasAkumulasi: Record<string, { sum: number; count: number }> = {};
   for (const s of submissionNilai || []) {

@@ -93,7 +93,16 @@ export default async function MahasiswaMKDetail({
         .in("kuis_id", kuisIds)
     : { data: [] };
   const kuisSelesaiIds = new Set((myKuisAttempts || []).filter((a) => a.waktu_selesai).map((a) => a.kuis_id));
-  const myKuisNilai = (myKuisAttempts || []).filter((a) => a.skor !== null);
+
+  // Kuis bisa dicoba berkali-kali — ambil nilai terbaik per kuis saja,
+  // supaya tidak dihitung berulang saat rata-rata komponen Tugas.
+  const bestSkorPerKuis: Record<string, number> = {};
+  for (const a of myKuisAttempts || []) {
+    if (a.skor !== null && (bestSkorPerKuis[a.kuis_id] === undefined || a.skor > bestSkorPerKuis[a.kuis_id])) {
+      bestSkorPerKuis[a.kuis_id] = a.skor;
+    }
+  }
+  const myKuisNilai = Object.values(bestSkorPerKuis).map((skor) => ({ skor }));
 
   const tugasNilaiList = [
     ...(mySubmissionNilai || []).map((s) => s.nilai),

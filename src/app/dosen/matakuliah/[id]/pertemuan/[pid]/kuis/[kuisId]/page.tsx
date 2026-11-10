@@ -38,8 +38,9 @@ export default async function KelolaKuisPage({
 
   const { data: attempts } = await supabase
     .from("kuis_attempt")
-    .select("id, mahasiswa_id, waktu_selesai, skor, pelanggaran")
-    .eq("kuis_id", kuisId);
+    .select("id, mahasiswa_id, waktu_mulai, waktu_selesai, skor, pelanggaran")
+    .eq("kuis_id", kuisId)
+    .order("waktu_mulai", { ascending: true });
 
   const attemptIds = (attempts || []).map((a) => a.id);
   const { data: esaiJawabanAll } = attemptIds.length > 0 && esaiSoalIds.length > 0
@@ -61,19 +62,44 @@ export default async function KelolaKuisPage({
     });
   }
 
-  const attemptMap: Record<string, { id: string; waktu_selesai: string | null; skor: number | null; pelanggaran: number | null }> = {};
-  for (const a of attempts || []) attemptMap[a.mahasiswa_id] = a;
+  const maksAttempt = kuis.maks_attempt ?? 1;
+
+  type AttemptRow = {
+    id: string; mahasiswa_id: string; waktu_mulai: string;
+    waktu_selesai: string | null; skor: number | null; pelanggaran: number | null;
+  };
+  const attemptsByMahasiswa: Record<string, AttemptRow[]> = {};
+  for (const a of (attempts as AttemptRow[]) || []) {
+    if (!attemptsByMahasiswa[a.mahasiswa_id]) attemptsByMahasiswa[a.mahasiswa_id] = [];
+    attemptsByMahasiswa[a.mahasiswa_id]!.push(a);
+  }
 
   const hasilKuis = (mahasiswa || []).map((e: Record<string, unknown>) => {
     const mhs = e.mahasiswa as { id: string; nim: string; nama: string };
-    const a = attemptMap[mhs.id];
-    const status: "belum" | "sedang" | "selesai" = !a ? "belum" : a.waktu_selesai ? "selesai" : "sedang";
-    const menungguEsai = status === "selesai" && a.skor === null;
+    const attemptList = attemptsByMahasiswa[mhs.id] || [];
+    const sedang = attemptList.find((a) => !a.waktu_selesai);
+    const selesaiList = attemptList.filter((a) => a.waktu_selesai);
+    const status: "belum" | "sedang" | "selesai" =
+      attemptList.length === 0 ? "belum" : sedang ? "sedang" : "selesai";
+    const skorTerbaik = selesaiList.reduce<number | null>(
+      (best, a) => (a.skor !== null && (best === null || a.skor > best) ? a.skor : best),
+      null
+    );
+    const pelanggaranTotal = attemptList.reduce((sum, a) => sum + (a.pelanggaran ?? 0), 0);
+    const attemptsDetail = attemptList.map((a, i) => ({
+      attemptId: a.id,
+      ke: i + 1,
+      selesai: !!a.waktu_selesai,
+      skor: a.skor,
+      menungguEsai: !!a.waktu_selesai && a.skor === null,
+      pelanggaran: a.pelanggaran ?? 0,
+      esaiItems: esaiJawabanByAttempt[a.id] || [],
+    }));
     return {
       id: mhs.id, nim: mhs.nim, nama: mhs.nama, status,
-      skor: a?.skor ?? null, pelanggaran: a?.pelanggaran ?? 0,
-      menungguEsai, attemptId: a?.id ?? null,
-      esaiItems: a ? esaiJawabanByAttempt[a.id] || [] : [],
+      skorTerbaik, pelanggaranTotal,
+      jumlahPercobaan: attemptList.length,
+      attemptsDetail,
     };
   });
 
@@ -101,6 +127,7 @@ export default async function KelolaKuisPage({
         mkId={id}
         initialJudul={kuis.judul}
         initialDurasi={kuis.durasi_menit}
+        initialMaksAttempt={kuis.maks_attempt ?? 1}
         soalList={soalList || []}
       />
 
@@ -123,25 +150,31 @@ export default async function KelolaKuisPage({
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm text-gray-900">{h.nama}</div>
-                    <div className="text-xs text-gray-400 font-mono">{h.nim}</div>
+                    <div className="text-xs text-gray-400 font-mono flex items-center gap-2">
+                      {h.nim}
+                      {maksAttempt > 1 && (
+                        <span className="text-gray-400">· {h.jumlahPercobaan}/{maksAttempt} percobaan</span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {h.pelanggaran > 0 && (
-                      <span className="text-xs text-red-600" title="Jumlah kali keluar dari tab kuis">
-                        ⚠ {h.pelanggaran}x
+                    {h.pelanggaranTotal > 0 && (
+                      <span className="text-xs text-red-600" title="Total kali keluar dari tab kuis (semua percobaan)">
+                        ⚠ {h.pelanggaranTotal}x
                       </span>
                     )}
                     {h.status === "selesai" ? (
-                      h.menungguEsai ? (
-                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">
-                          Menunggu dinilai
-                        </span>
-                      ) : (
+                      h.skorTerbaik !== null ? (
                         <span
                           className="text-sm font-bold"
-                          style={{ color: (h.skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b" }}
+                          style={{ color: h.skorTerbaik >= 60 ? "#1e40af" : "#c23b3b" }}
+                          title="Nilai terbaik dari seluruh percobaan"
                         >
-                          {h.skor}
+                          {h.skorTerbaik}
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">
+                          Menunggu dinilai
                         </span>
                       )
                     ) : h.status === "sedang" ? (
@@ -155,15 +188,39 @@ export default async function KelolaKuisPage({
                     )}
                   </div>
                 </div>
-                {h.menungguEsai && h.attemptId && h.esaiItems.length > 0 && (
-                  <NilaiEsai
-                    attemptId={h.attemptId}
-                    kuisId={kuisId}
-                    pertemuanId={pid}
-                    mkId={id}
-                    items={h.esaiItems}
-                  />
+
+                {maksAttempt > 1 && h.attemptsDetail.length > 0 && (
+                  <div className="mt-2 pl-1 space-y-1">
+                    {h.attemptsDetail.map((ad) => (
+                      <div key={ad.attemptId} className="text-xs text-gray-500 flex items-center gap-2">
+                        <span className="text-gray-400">Percobaan {ad.ke}:</span>
+                        {!ad.selesai ? (
+                          <span className="text-yellow-700">sedang berlangsung</span>
+                        ) : ad.menungguEsai ? (
+                          <span className="text-amber-700">menunggu dinilai</span>
+                        ) : (
+                          <span className={(ad.skor ?? 0) >= 60 ? "text-blue-700" : "text-red-700"}>
+                            nilai {ad.skor}
+                          </span>
+                        )}
+                        {ad.pelanggaran > 0 && <span className="text-red-500">· ⚠ {ad.pelanggaran}x</span>}
+                      </div>
+                    ))}
+                  </div>
                 )}
+
+                {h.attemptsDetail
+                  .filter((ad) => ad.menungguEsai && ad.esaiItems.length > 0)
+                  .map((ad) => (
+                    <NilaiEsai
+                      key={ad.attemptId}
+                      attemptId={ad.attemptId}
+                      kuisId={kuisId}
+                      pertemuanId={pid}
+                      mkId={id}
+                      items={ad.esaiItems}
+                    />
+                  ))}
               </div>
             ))}
           </div>

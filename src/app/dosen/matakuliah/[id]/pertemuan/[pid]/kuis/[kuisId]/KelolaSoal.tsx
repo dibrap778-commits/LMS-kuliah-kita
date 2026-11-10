@@ -25,16 +25,17 @@ const emptyForm = {
 };
 
 export default function KelolaSoal({
-  kuisId, pertemuanId, mkId, initialJudul, initialDurasi, soalList,
+  kuisId, pertemuanId, mkId, initialJudul, initialDurasi, initialMaksAttempt, soalList,
 }: {
   kuisId: string; pertemuanId: string; mkId: string;
-  initialJudul: string; initialDurasi: number; soalList: Soal[];
+  initialJudul: string; initialDurasi: number; initialMaksAttempt: number; soalList: Soal[];
 }) {
   const router = useRouter();
 
   const [editingHeader, setEditingHeader] = useState(false);
   const [judul, setJudul] = useState(initialJudul);
   const [durasi, setDurasi] = useState(String(initialDurasi));
+  const [maksAttempt, setMaksAttempt] = useState(String(initialMaksAttempt));
   const [savingHeader, setSavingHeader] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
@@ -44,9 +45,9 @@ export default function KelolaSoal({
   const [error, setError] = useState("");
 
   async function handleSaveHeader() {
-    if (!judul.trim() || !durasi) return;
+    if (!judul.trim() || !durasi || !maksAttempt) return;
     setSavingHeader(true);
-    await editKuis(kuisId, pertemuanId, mkId, judul.trim(), Number(durasi));
+    await editKuis(kuisId, pertemuanId, mkId, judul.trim(), Number(durasi), Number(maksAttempt));
     setSavingHeader(false);
     setEditingHeader(false);
     router.refresh();
@@ -147,7 +148,7 @@ export default function KelolaSoal({
             <div>
               <h1 className="text-lg font-bold text-gray-900">{judul}</h1>
               <p className="text-sm text-gray-500 mt-1">
-                {jumlahPG} pilihan ganda · {jumlahEsai} esai · {durasi} menit
+                {jumlahPG} pilihan ganda · {jumlahEsai} esai · {durasi} menit · maks {maksAttempt}x percobaan
               </p>
             </div>
             <button
@@ -163,13 +164,23 @@ export default function KelolaSoal({
               <label className="block text-xs font-medium text-gray-600 mb-1">Judul Kuis</label>
               <input value={judul} onChange={(e) => setJudul(e.target.value)} style={inputStyle} />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Durasi (menit)</label>
-              <input
-                type="number" min={1} value={durasi}
-                onChange={(e) => setDurasi(e.target.value)}
-                style={{ ...inputStyle, width: 120 }}
-              />
+            <div className="flex gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Durasi (menit)</label>
+                <input
+                  type="number" min={1} value={durasi}
+                  onChange={(e) => setDurasi(e.target.value)}
+                  style={{ ...inputStyle, width: 120 }}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Maks. percobaan</label>
+                <input
+                  type="number" min={1} value={maksAttempt}
+                  onChange={(e) => setMaksAttempt(e.target.value)}
+                  style={{ ...inputStyle, width: 120 }}
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -181,7 +192,7 @@ export default function KelolaSoal({
                 {savingHeader ? "Menyimpan..." : "Simpan"}
               </button>
               <button
-                onClick={() => { setEditingHeader(false); setJudul(initialJudul); setDurasi(String(initialDurasi)); }}
+                onClick={() => { setEditingHeader(false); setJudul(initialJudul); setDurasi(String(initialDurasi)); setMaksAttempt(String(initialMaksAttempt)); }}
                 className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
               >
                 Batal

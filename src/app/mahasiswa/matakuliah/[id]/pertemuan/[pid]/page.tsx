@@ -65,6 +65,23 @@ export default async function MahasiswaPertemuanDetail({
         .in("kuis_id", kuisIds)
     : { data: [] };
 
+  const kuisStatusMap: Record<string, { sedang: boolean; selesaiCount: number; bestSkor: number | null; adaMenungguEsai: boolean }> = {};
+  for (const k of kuisList || []) {
+    const myList = (myAttempts || []).filter((a) => a.kuis_id === k.id);
+    const sedang = myList.some((a) => !a.waktu_selesai);
+    const selesaiList = myList.filter((a) => a.waktu_selesai);
+    const bestSkor = selesaiList.reduce<number | null>(
+      (best, a) => (a.skor !== null && (best === null || a.skor > best) ? a.skor : best),
+      null
+    );
+    kuisStatusMap[k.id] = {
+      sedang,
+      selesaiCount: selesaiList.length,
+      bestSkor,
+      adaMenungguEsai: selesaiList.some((a) => a.skor === null),
+    };
+  }
+
   function getYoutubeId(url: string): string | null {
     try {
       const u = new URL(url);
@@ -223,9 +240,10 @@ export default async function MahasiswaPertemuanDetail({
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0b1748", marginBottom: 12 }}>Kuis</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {kuisList.map((k) => {
-                  const attempt = myAttempts?.find((a) => a.kuis_id === k.id);
-                  const selesai = attempt?.waktu_selesai;
-                  const sedang = attempt && !attempt.waktu_selesai;
+                  const st = kuisStatusMap[k.id];
+                  const maksAttempt = k.maks_attempt ?? 1;
+                  const bisaCobaLagi = st.selesaiCount > 0 && st.selesaiCount < maksAttempt;
+                  const selesaiFinal = st.selesaiCount > 0 && !bisaCobaLagi;
                   return (
                     <Link
                       key={k.id}
@@ -242,20 +260,24 @@ export default async function MahasiswaPertemuanDetail({
                           {k.kuis_soal?.[0]?.count || 0} soal · {k.durasi_menit} menit
                         </p>
                       </div>
-                      {selesai ? (
+                      {st.sedang ? (
+                        <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#fef3c7", color: "#92400e", whiteSpace: "nowrap" }}>
+                          Sedang berlangsung
+                        </span>
+                      ) : bisaCobaLagi ? (
+                        <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#dbeafe", color: "#1e40af", whiteSpace: "nowrap" }}>
+                          {st.bestSkor !== null ? `Nilai ${st.bestSkor} · bisa coba lagi` : "Bisa coba lagi"}
+                        </span>
+                      ) : selesaiFinal ? (
                         <span
                           style={{
                             fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700,
-                            background: attempt!.skor === null ? "#fef3c7" : (attempt!.skor ?? 0) >= 60 ? "#dbeafe" : "#fde8e8",
-                            color: attempt!.skor === null ? "#92400e" : (attempt!.skor ?? 0) >= 60 ? "#1e40af" : "#c23b3b",
+                            background: st.bestSkor === null ? "#fef3c7" : st.bestSkor >= 60 ? "#dbeafe" : "#fde8e8",
+                            color: st.bestSkor === null ? "#92400e" : st.bestSkor >= 60 ? "#1e40af" : "#c23b3b",
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {attempt!.skor === null ? "Menunggu dinilai" : `Selesai · Nilai ${attempt!.skor}`}
-                        </span>
-                      ) : sedang ? (
-                        <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#fef3c7", color: "#92400e", whiteSpace: "nowrap" }}>
-                          Sedang berlangsung
+                          {st.bestSkor === null ? "Menunggu dinilai" : `Selesai · Nilai ${st.bestSkor}`}
                         </span>
                       ) : !k.buka ? (
                         <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#f1f5f9", color: "#64748b", whiteSpace: "nowrap" }}>
@@ -437,12 +459,21 @@ export default async function MahasiswaPertemuanDetail({
                   );
                 })}
                 {(kuisList || []).map((k) => {
-                  const attempt = myAttempts?.find((a) => a.kuis_id === k.id);
-                  const selesai = attempt?.waktu_selesai;
-                  const sedang = attempt && !attempt.waktu_selesai;
-                  const label = selesai ? (attempt!.skor === null ? "Dinilai" : "Selesai") : sedang ? "Berlangsung" : !k.buka ? "Terkunci" : "Belum";
-                  const color = selesai ? "#1e40af" : sedang ? "#92400e" : "#64748b";
-                  const bg = selesai ? "#dbeafe" : sedang ? "#fef3c7" : "#f1f5f9";
+                  const st = kuisStatusMap[k.id];
+                  const maksAttempt = k.maks_attempt ?? 1;
+                  const bisaCobaLagi = st.selesaiCount > 0 && st.selesaiCount < maksAttempt;
+                  const selesaiFinal = st.selesaiCount > 0 && !bisaCobaLagi;
+                  const label = st.sedang
+                    ? "Berlangsung"
+                    : bisaCobaLagi
+                    ? "Coba lagi"
+                    : selesaiFinal
+                    ? (st.bestSkor === null ? "Menunggu dinilai" : "Selesai")
+                    : !k.buka
+                    ? "Terkunci"
+                    : "Belum";
+                  const color = st.sedang || bisaCobaLagi ? "#92400e" : selesaiFinal ? "#1e40af" : "#64748b";
+                  const bg = st.sedang || bisaCobaLagi ? "#fef3c7" : selesaiFinal ? "#dbeafe" : "#f1f5f9";
                   return (
                     <a
                       key={k.id}

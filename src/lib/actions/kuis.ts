@@ -18,7 +18,8 @@ export async function createKuis(
   pertemuanId: string,
   mkId: string,
   judul: string,
-  durasiMenit: number
+  durasiMenit: number,
+  maksAttempt: number = 1
 ) {
   const session = await getSession();
   if (!session || session.role !== "dosen") return { error: "Unauthorized" };
@@ -26,7 +27,13 @@ export async function createKuis(
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("kuis")
-    .insert({ pertemuan_id: pertemuanId, judul, durasi_menit: durasiMenit, buka: false })
+    .insert({
+      pertemuan_id: pertemuanId,
+      judul,
+      durasi_menit: durasiMenit,
+      maks_attempt: Math.max(1, maksAttempt),
+      buka: false,
+    })
     .select()
     .single();
 
@@ -61,7 +68,8 @@ export async function editKuis(
   pertemuanId: string,
   mkId: string,
   judul: string,
-  durasiMenit: number
+  durasiMenit: number,
+  maksAttempt: number = 1
 ) {
   const session = await getSession();
   if (!session || session.role !== "dosen") return { error: "Unauthorized" };
@@ -69,7 +77,7 @@ export async function editKuis(
   const supabase = createServerClient();
   const { error } = await supabase
     .from("kuis")
-    .update({ judul, durasi_menit: durasiMenit })
+    .update({ judul, durasi_menit: durasiMenit, maks_attempt: Math.max(1, maksAttempt) })
     .eq("id", kuisId);
 
   if (error) return { error: "Gagal mengubah kuis" };
@@ -151,17 +159,24 @@ export async function startAttempt(kuisId: string) {
 
   const supabase = createServerClient();
 
-  const { data: kuis } = await supabase.from("kuis").select("buka").eq("id", kuisId).single();
+  const { data: kuis } = await supabase.from("kuis").select("buka, maks_attempt").eq("id", kuisId).single();
   if (!kuis?.buka) return { error: "Kuis belum dibuka oleh dosen" };
 
-  const { data: existing } = await supabase
+  const { data: existingAttempts } = await supabase
     .from("kuis_attempt")
-    .select("id")
+    .select("id, waktu_selesai")
     .eq("kuis_id", kuisId)
     .eq("mahasiswa_id", session.id)
-    .single();
+    .order("waktu_mulai", { ascending: true });
 
-  if (existing) return { success: true, attemptId: existing.id };
+  const belumSelesai = (existingAttempts || []).find((a) => !a.waktu_selesai);
+  if (belumSelesai) return { success: true, attemptId: belumSelesai.id };
+
+  const maksAttempt = kuis.maks_attempt ?? 1;
+  const jumlahSelesai = (existingAttempts || []).length;
+  if (jumlahSelesai >= maksAttempt) {
+    return { error: `Sudah mencapai batas maksimal ${maksAttempt}x percobaan untuk kuis ini` };
+  }
 
   const { data, error } = await supabase
     .from("kuis_attempt")
