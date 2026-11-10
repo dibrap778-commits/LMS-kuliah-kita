@@ -22,11 +22,31 @@ export async function createTugas(formData: FormData) {
     judul,
     deskripsi,
     deadline,
+    buka: true,
     ...(soal_url ? { soal_url, soal_nama_file } : {}),
   });
 
   if (error) return { error: "Gagal membuat tugas" };
 
+  return { success: true };
+}
+
+export async function toggleTugas(
+  tugasId: string,
+  pertemuanId: string,
+  mkId: string,
+  buka: boolean
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase.from("tugas").update({ buka }).eq("id", tugasId);
+
+  if (error) return { error: "Gagal mengubah status tugas" };
+
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  revalidatePath(`/mahasiswa/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
   return { success: true };
 }
 
@@ -76,6 +96,9 @@ export async function submitTugas(formData: FormData) {
   const pertemuan_id = formData.get("pertemuan_id") as string;
 
   const supabase = createServerClient();
+
+  const { data: tugas } = await supabase.from("tugas").select("buka").eq("id", tugas_id).single();
+  if (!tugas?.buka) return { error: "Tugas belum dibuka oleh dosen" };
 
   const { error } = await supabase.from("submission").upsert(
     {

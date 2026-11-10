@@ -12,6 +12,8 @@ import EditLinkMeeting from "./EditLinkMeeting";
 import TambahKuis from "./TambahKuis";
 import HapusKuis from "./HapusKuis";
 import HapusPertemuan from "./HapusPertemuan";
+import KuisToggle from "./KuisToggle";
+import TugasToggle from "./TugasToggle";
 
 export default async function PertemuanDetail({
   params,
@@ -199,6 +201,7 @@ export default async function PertemuanDetail({
                         {k.kuis_soal?.[0]?.count || 0} soal · {k.durasi_menit} menit
                       </div>
                     </Link>
+                    <KuisToggle kuisId={k.id} pertemuanId={pid} mkId={id} initialBuka={k.buka} />
                     <HapusKuis kuisId={k.id} pertemuanId={pid} mkId={id} />
                   </div>
                 ))}
@@ -223,6 +226,7 @@ export default async function PertemuanDetail({
                         <span className="text-xs text-gray-400">
                           {t.submission?.[0]?.count || 0} dikumpulkan
                         </span>
+                        <TugasToggle tugasId={t.id} pertemuanId={pid} mkId={id} initialBuka={t.buka} />
                         <EditTugas
                           tugasId={t.id}
                           pertemuanId={pid}

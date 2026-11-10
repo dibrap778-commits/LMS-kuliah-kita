@@ -26,7 +26,7 @@ export async function createKuis(
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from("kuis")
-    .insert({ pertemuan_id: pertemuanId, judul, durasi_menit: durasiMenit })
+    .insert({ pertemuan_id: pertemuanId, judul, durasi_menit: durasiMenit, buka: false })
     .select()
     .single();
 
@@ -34,6 +34,26 @@ export async function createKuis(
 
   revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
   return { success: true, id: data.id };
+}
+
+export async function toggleKuis(
+  kuisId: string,
+  pertemuanId: string,
+  mkId: string,
+  buka: boolean
+) {
+  const session = await getSession();
+  if (!session || session.role !== "dosen") return { error: "Unauthorized" };
+
+  const supabase = createServerClient();
+  const { error } = await supabase.from("kuis").update({ buka }).eq("id", kuisId);
+
+  if (error) return { error: "Gagal mengubah status kuis" };
+
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  revalidatePath(`/dosen/matakuliah/${mkId}/pertemuan/${pertemuanId}/kuis/${kuisId}`);
+  revalidatePath(`/mahasiswa/matakuliah/${mkId}/pertemuan/${pertemuanId}`);
+  return { success: true };
 }
 
 export async function editKuis(
@@ -130,6 +150,9 @@ export async function startAttempt(kuisId: string) {
   if (!session || session.role !== "mahasiswa") return { error: "Unauthorized" };
 
   const supabase = createServerClient();
+
+  const { data: kuis } = await supabase.from("kuis").select("buka").eq("id", kuisId).single();
+  if (!kuis?.buka) return { error: "Kuis belum dibuka oleh dosen" };
 
   const { data: existing } = await supabase
     .from("kuis_attempt")

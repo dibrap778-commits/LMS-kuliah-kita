@@ -89,7 +89,15 @@ export default async function KuisPage({
         {jumlahSoal || 0} soal · {kuis.durasi_menit} menit
       </p>
 
-      {state === "not_started" && (
+      {state === "not_started" && !kuis.buka && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+          <p className="text-sm text-gray-500">
+            🔒 Kuis ini belum dibuka oleh dosen. Coba cek lagi nanti.
+          </p>
+        </div>
+      )}
+
+      {state === "not_started" && kuis.buka && (
         <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
           <p className="text-sm text-gray-600 mb-4">
             Kuis ini punya batas waktu {kuis.durasi_menit} menit sejak Anda menekan mulai, dan hanya

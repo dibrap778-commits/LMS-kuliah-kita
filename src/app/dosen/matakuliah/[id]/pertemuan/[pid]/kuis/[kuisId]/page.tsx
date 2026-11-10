@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import { redirect } from "next/navigation";
 import KelolaSoal from "./KelolaSoal";
 import NilaiEsai from "./NilaiEsai";
+import KuisToggle from "../../KuisToggle";
 
 export default async function KelolaKuisPage({
   params,
@@ -86,6 +87,14 @@ export default async function KelolaKuisPage({
       >
         &larr; Kembali ke pertemuan
       </Link>
+
+      <div className="flex items-center justify-between mb-4 bg-white rounded-xl border border-gray-200 px-4 py-3">
+        <div className="text-sm text-gray-600">
+          Status untuk mahasiswa: <span className="font-medium text-gray-900">{kuis.buka ? "Terbuka" : "Terkunci"}</span>
+        </div>
+        <KuisToggle kuisId={kuisId} pertemuanId={pid} mkId={id} initialBuka={kuis.buka} />
+      </div>
+
       <KelolaSoal
         kuisId={kuisId}
         pertemuanId={pid}

@@ -257,6 +257,10 @@ export default async function MahasiswaPertemuanDetail({
                         <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#fef3c7", color: "#92400e", whiteSpace: "nowrap" }}>
                           Sedang berlangsung
                         </span>
+                      ) : !k.buka ? (
+                        <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#f1f5f9", color: "#64748b", whiteSpace: "nowrap" }}>
+                          🔒 Terkunci
+                        </span>
                       ) : (
                         <span style={{ fontSize: 11.5, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#f1f5f9", color: "#64748b", whiteSpace: "nowrap" }}>
                           Belum dikerjakan
@@ -285,6 +289,10 @@ export default async function MahasiswaPertemuanDetail({
                         {sub ? (
                           <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#dcfce7", color: "#166534", whiteSpace: "nowrap" }}>
                             Sudah dikumpulkan
+                          </span>
+                        ) : !t.buka ? (
+                          <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#f1f5f9", color: "#64748b", whiteSpace: "nowrap" }}>
+                            🔒 Terkunci
                           </span>
                         ) : isPastDeadline ? (
                           <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 999, fontWeight: 700, background: "#fee2e2", color: "#b91c1c", whiteSpace: "nowrap" }}>
@@ -353,6 +361,10 @@ export default async function MahasiswaPertemuanDetail({
                             </div>
                           )}
                         </div>
+                      ) : !t.buka ? (
+                        <div style={{ fontSize: 12.5, color: "#586b88", fontStyle: "italic" }}>
+                          Tugas ini belum dibuka oleh dosen.
+                        </div>
                       ) : !isPastDeadline ? (
                         <SubmitTugas tugasId={t.id} mkId={id} pertemuanId={pid} />
                       ) : null}
@@ -399,9 +411,9 @@ export default async function MahasiswaPertemuanDetail({
                 {(tugasList || []).map((t) => {
                   const sub = mySubmissions?.find((s) => s.tugas_id === t.id);
                   const isPastDeadline = new Date(t.deadline) < new Date();
-                  const label = sub ? "Terkumpul" : isPastDeadline ? "Terlambat" : "Belum";
-                  const color = sub ? "#166534" : isPastDeadline ? "#b91c1c" : "#92400e";
-                  const bg = sub ? "#dcfce7" : isPastDeadline ? "#fee2e2" : "#fef3c7";
+                  const label = sub ? "Terkumpul" : !t.buka ? "Terkunci" : isPastDeadline ? "Terlambat" : "Belum";
+                  const color = sub ? "#166534" : !t.buka ? "#64748b" : isPastDeadline ? "#b91c1c" : "#92400e";
+                  const bg = sub ? "#dcfce7" : !t.buka ? "#f1f5f9" : isPastDeadline ? "#fee2e2" : "#fef3c7";
                   return (
                     <a
                       key={t.id}
@@ -428,7 +440,7 @@ export default async function MahasiswaPertemuanDetail({
                   const attempt = myAttempts?.find((a) => a.kuis_id === k.id);
                   const selesai = attempt?.waktu_selesai;
                   const sedang = attempt && !attempt.waktu_selesai;
-                  const label = selesai ? (attempt!.skor === null ? "Dinilai" : "Selesai") : sedang ? "Berlangsung" : "Belum";
+                  const label = selesai ? (attempt!.skor === null ? "Dinilai" : "Selesai") : sedang ? "Berlangsung" : !k.buka ? "Terkunci" : "Belum";
                   const color = selesai ? "#1e40af" : sedang ? "#92400e" : "#64748b";
                   const bg = selesai ? "#dbeafe" : sedang ? "#fef3c7" : "#f1f5f9";
                   return (
